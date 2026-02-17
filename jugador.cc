@@ -50,10 +50,14 @@ void InstanciarSpritesColores(Sprites *punteroSprites)
 }
 void InstanciarSpritesPlayer(Sprites *punteroSprites)
 {
-  punteroSprites[0].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player1.png");
-  punteroSprites[1].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player2.png");
-  punteroSprites[2].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player3.png");
-  punteroSprites[3].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player4.png");
+  punteroSprites[0].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player1right.png");
+  punteroSprites[1].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player2right.png");
+  punteroSprites[2].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player3right.png");
+  punteroSprites[3].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player4right.png");
+  punteroSprites[4].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player1.png");
+  punteroSprites[5].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player2.png");
+  punteroSprites[6].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player3.png");
+  punteroSprites[7].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/player4.png");
 }
 
 void InstanciarPlayer(Jugador *player)
@@ -124,24 +128,21 @@ void Ascender_Gravedad(Jugador *jugador, bool ascendiendo)
 
 void DibujarJugador(Sprites *punteroSprites, Jugador jugador)
 {
-  static int frame_actual = 0;
+  static int frame_local = 0;
   static float timer = 0.0f;
   float frame_time = 0.15f;
-
   timer += delta_time;
-  // if (!jugador.mirandoDerecha)
-
-  // else
-
   //! Cambiar posteriormente !!!!!!!!
   if (timer >= frame_time && jugador.isMoving)
   {
     timer = 0.0f;
-    frame_actual = (frame_actual + 1) % 4;
+    frame_local = (frame_local + 1) % 4;
   }
   else if (!jugador.isMoving)
-    frame_actual = 0;
+    frame_local = 0;
 
+  int frame_offset = jugador.mirandoDerecha ? 0 : 4;
+  int frame_actual = frame_offset + frame_local;
   esat::DrawSprite(punteroSprites[frame_actual].sprite, jugador.pos.x, jugador.pos.y);
 }
 
@@ -155,7 +156,7 @@ int esat::main(int argc, char **argv)
 
   // puntero a sprites
   Sprites *spritesColores = AsignarMemoriaSprites(4);
-  Sprites *spritesPersonaje = AsignarMemoriaSprites(4);
+  Sprites *spritesPersonaje = AsignarMemoriaSprites(8);
   InstanciarSpritesColores(spritesColores);
   InstanciarSpritesPlayer(spritesPersonaje);
 
