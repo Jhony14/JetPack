@@ -12,10 +12,12 @@
 #include <time.h>
 #include <math.h>
 
+#include "hud.cc"
+#include "interface.cc"
 
 // Windows dimensions with default values
-const int KWindow_Width = 800;
-const int KWindow_Height = 800;
+const int KWindow_Width = 256 * 2;
+const int KWindow_Height = 192 * 2;
 
 // FPS
 double delta_time;
@@ -32,6 +34,9 @@ int esat::main(int argc, char **argv) {
 	srand((unsigned)time(nullptr));
 	last_time = esat::Time();
 
+  // load font
+  LoadFonts();
+
   // Main game loop
   while(esat::WindowIsOpened() && !esat::IsSpecialKeyDown(esat::kSpecialKey_Escape)) {
     
@@ -46,7 +51,10 @@ int esat::main(int argc, char **argv) {
     esat::DrawBegin();
     esat::DrawClear(0,0,0);
 
+    // Change screen
+    ScreenSelector(MAIN_MENU);
 
+    TestMousePosition();
 
     // Finish drawing
     esat::DrawEnd();
