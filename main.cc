@@ -14,8 +14,8 @@
 
 
 // Windows dimensions with default values
-const int KWindow_Width = 800;
-const int KWindow_Height = 800;
+const int KWindow_Width = 256 * 2;
+const int KWindow_Height = 192 * 2;
 
 // FPS
 double delta_time;
