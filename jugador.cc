@@ -11,7 +11,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-// #include "colisiones.cc"
+#include "colisiones.cc"
 #define spritewidth 34
 #define spriteheight 50
 #define windowX 800
@@ -36,7 +36,7 @@ struct Jugador
   bool isShooting;
   bool mirandoDerecha;
   bool volando;
-  // object config_colision;
+  object config_colision;
 };
 struct Bala
 {
@@ -98,6 +98,9 @@ void InstanciarPlayer(Jugador *player)
   player->volando = false;
   player->speed = 5.0f;
   player->mirandoDerecha = true;
+
+  player->config_colision.width = spritewidth;
+  player->config_colision.height = spriteheight;
 }
 
 void InstanciarBalas(Bala *bala)
@@ -107,6 +110,17 @@ void InstanciarBalas(Bala *bala)
     bala[i].activa = false;
   }
 }
+
+void InstanciarCubo(object *cubo_prueba, Sprites punteroSprites)
+{
+  cubo_prueba->sprite = punteroSprites.sprite;
+  cubo_prueba->width = esat::SpriteWidth(punteroSprites.sprite);
+  cubo_prueba->height = esat::SpriteHeight(punteroSprites.sprite);
+
+  cubo_prueba->position.x = windowX - spritewidth;
+  cubo_prueba->position.y = windowY - spriteheight;
+}
+
 // ________________________________
 // BALAS
 // ________________________________
@@ -197,7 +211,7 @@ void DibujarJugador(Sprites *punteroSprites, Jugador jugador)
 
   timer += delta_time;
 
-  if (timer >= frame_time && jugador.isMoving)
+  if (timer >= frame_time && (jugador.isMoving || jugador.volando))
   {
     timer = 0.0f;
     frame_local = (frame_local + 1) % 4;
@@ -281,6 +295,28 @@ void Ascender_Gravedad(Jugador *jugador, bool ascendiendo)
     jugador->volando = true;
   }
 }
+void ActualizarColisiones(Jugador *player, object &cubo_prueba)
+{
+  player->config_colision.position.x = player->pos.x;
+  player->config_colision.position.y = player->pos.y;
+  player->config_colision.colision = CreateColision(player->config_colision);
+  cubo_prueba.colision = CreateColision(cubo_prueba);
+}
+
+void ColisionPlayer(Jugador &player, object &objeto)
+{
+  printf("x: %f y: %f \n", player.pos.x, player.pos.y);
+
+  if (CheckColision(player.config_colision.colision, objeto.colision))
+  {
+    printf("Buenas tardes manuel \n");
+  }
+}
+
+void DebuggingCubo(object cubo, Sprites punteroSprites)
+{
+  esat::DrawSprite(punteroSprites.sprite, cubo.position.x, cubo.position.y);
+}
 
 int esat::main(int argc, char **argv)
 {
@@ -300,6 +336,9 @@ int esat::main(int argc, char **argv)
 
   Jugador player;
   InstanciarPlayer(&player);
+
+  object cubo_prueba;
+  InstanciarCubo(&cubo_prueba, *spritesPersonaje);
 
   // Main game loop
   while (esat::WindowIsOpened() && !esat::IsSpecialKeyDown(esat::kSpecialKey_Escape))
@@ -321,9 +360,9 @@ int esat::main(int argc, char **argv)
     bool moverRight = (esat::IsKeyPressed('D') || esat::IsKeyPressed('d'));
     bool ascender = (esat::IsKeyPressed('W') || esat::IsKeyPressed('w'));
     Ascender_Gravedad(&player, ascender);
-    ControlarLimitesPantalla(&player, punteroBalas);
     CrearDisparos(punteroBalas, player);
     ActualizarDisparos(punteroBalas, player);
+
     if (moverLeft || moverRight)
     {
       player.isMoving = true;
@@ -336,9 +375,16 @@ int esat::main(int argc, char **argv)
     else
       player.isMoving = false;
 
+    ControlarLimitesPantalla(&player, punteroBalas);
+    ActualizarColisiones(&player, cubo_prueba);
+    ColisionPlayer(player, cubo_prueba);
+
     DibujarColoresJugador(spritesColores, player);
     DibujarJugador(spritesPersonaje, player);
     DibujarDisparos(punteroBalas);
+
+    DebuggingCubo(cubo_prueba, *spritesColores);
+    DebuggingCubo(player.config_colision, *spritesColores);
 
     // Finish drawing
     esat::DrawEnd();
