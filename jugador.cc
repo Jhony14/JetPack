@@ -238,9 +238,8 @@ void DibujarColoresJugador(Sprites *punteroSprites, Jugador jugador, int frame)
 
 void DibujarJugador(Sprites *punteroSprites, Jugador jugador, int frame)
 {
-  int base = jugador.volando
-    ? (jugador.mirandoDerecha ? 8 : 12)
-    : (jugador.mirandoDerecha ? 0 : 4);
+  int base = jugador.volando ? 
+  (jugador.mirandoDerecha ? 8 : 12) : (jugador.mirandoDerecha ? 0 : 4);
 
   esat::DrawSprite(punteroSprites[base + frame].sprite, jugador.pos.x, jugador.pos.y);
 }
