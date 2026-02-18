@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: release-on-main
+  cancel-in-progress: false
+
 jobs:
   auto-tag:
     runs-on: ubuntu-latest
