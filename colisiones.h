@@ -41,7 +41,7 @@ namespace COL{
     };
 
     colision CreateColision(object object)
-    {
+    {   
         colision final;
         final.p1.x = object.position.x;
         final.p1.y = object.position.y;
@@ -94,6 +94,8 @@ namespace COL{
             {return false;}
             break;
         }
+
+        return false;
     }
 
     void ShowColision(colision colision){
