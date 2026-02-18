@@ -157,6 +157,19 @@ void ActualizarDisparos(Bala *bala, Jugador player)
   }
 }
 
+void DibujarDisparos(Bala *bala)
+{
+  for (int i = 0; i < 20; i++)
+  {
+    if (bala[i].activa)
+    {
+      float balas[8] = {bala[i].pos.x, bala[i].pos.y, bala[i].pos.x + 50, bala[i].pos.y, bala[i].pos.x + 50, bala[i].pos.y + 2, bala[i].pos.x, bala[i].pos.y + 2};
+      esat::DrawSetFillColor(255, 255, 255);
+      esat::DrawSolidPath(balas, 4);
+    }
+  }
+}
+
 // ________________________________
 // DIBUJADO
 // ________________________________
@@ -206,19 +219,6 @@ void DibujarJugador(Sprites *punteroSprites, Jugador jugador)
     base = jugador.mirandoDerecha ? 8 : 12;
   }
   esat::DrawSprite(punteroSprites[base + frame_local].sprite, jugador.pos.x, jugador.pos.y);
-}
-
-void DibujarDisparos(Bala *bala)
-{
-  for (int i = 0; i < 20; i++)
-  {
-    if (bala[i].activa)
-    {
-      float balas[8] = {bala[i].pos.x, bala[i].pos.y, bala[i].pos.x + 50, bala[i].pos.y, bala[i].pos.x + 50, bala[i].pos.y + 2, bala[i].pos.x, bala[i].pos.y + 2};
-      esat::DrawSetFillColor(255, 255, 255);
-      esat::DrawSolidPath(balas, 4);
-    }
-  }
 }
 
 //_____________________________
