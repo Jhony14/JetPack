@@ -79,10 +79,10 @@ void InitPlatforms(TPlatform** g_platforms, esat::SpriteHandle* platform_sprite)
   int h = esat::SpriteHeight(*(platform_sprite + 0));
   *g_platforms = (TPlatform*)malloc(kplatform_numbers * sizeof(TPlatform));
 
-  // (@jhony) TODO: fix this
-  (*g_platforms)[0] = { nullptr, w, h, 70.0f, 150.0f, 70.0f, 150.0f, 70.0f + w*6, 150.0f + h, 6 };
-  (*g_platforms)[1] = { nullptr, w, h, 240.0f, 180.0f, 240.0f, 180.0f, 240.0f + w*4, 180.0f + h, 4 };
-  (*g_platforms)[2] = { nullptr, w, h, 390.0f, 100.0f, 390.0f, 100.0f, 390.0f + w*6, 100.0f + h, 6 };
+  // (@jhony) TODO: fix this  ancho altura             x      y       x2            y2
+  (*g_platforms)[0] = { nullptr, w, h, 70.0f, 150.0f, 70.0f, 150.0f, 70.0f + w*6, 150.0f + h, 6 }; //plataforma cuerpo
+  (*g_platforms)[1] = { nullptr, w, h, 240.0f, 180.0f, 240.0f, 180.0f, 240.0f + w*4, 180.0f + h, 4 }; //suelo
+  (*g_platforms)[2] = { nullptr, w, h, 390.0f, 100.0f, 390.0f, 100.0f, 390.0f + w*6, 100.0f + h, 6 }; //plataforma cabeza
   
   printf("[DEBUG] end InitPlatforms\n");
 }

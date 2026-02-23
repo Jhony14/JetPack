@@ -26,6 +26,56 @@ unsigned char fps = 25;
 double current_time;
 double last_time = 0;
 
+
+
+struct ParteNave{
+  esat::Vec2 pos;
+  COL::object parteNaveConfig;
+  COL::colision parteNaveColision;
+};
+
+
+//definicion funciones agregar luego
+
+ParteNave *parteNave;
+
+void ReservaMemoriaNave(ParteNave **parteNave){
+    *parteNave = (ParteNave*) malloc(sizeof(ParteNave)*3);
+}
+
+void InstanciarPartesDeLaNave(ParteNave *parteNave){
+    ParteNave cabeza;
+    cabeza.parteNaveConfig.position.x = 105;
+    cabeza.parteNaveConfig.position.y = 150-32;
+    parteNave[0] = cabeza;
+
+    ParteNave cuerpo;
+    cuerpo.parteNaveConfig.position.x = 256;
+    cuerpo.parteNaveConfig.position.y = 180-32;
+    parteNave[1] = cuerpo;
+
+    ParteNave cola;
+    cola.parteNaveConfig.position.x =  325;
+    cola.parteNaveConfig.position.y =  (kScreenHeight-16)-32;
+    parteNave[2] = cola;
+}
+
+
+void DibujarPartesNave(ParteNave *parteNave, Sprites *punteroSprites){
+    int height = 32;
+
+    for(int i=0; i<3; i++){
+        esat::DrawSprite(punteroSprites[12].sprite, parteNave[i].parteNaveConfig.position.x, parteNave[i].parteNaveConfig.position.y);
+    }
+
+    for(int i=0; i<3; i++){
+        esat::DrawSprite(punteroSprites[i].sprite, parteNave[i].parteNaveConfig.position.x, parteNave[i].parteNaveConfig.position.y);
+    }
+}
+
+
+//
+
 void InitiateFrame()
 {
     // Calculate time elapsed since the last frame
@@ -40,6 +90,7 @@ void InitiateFrame()
     esat::DrawBegin();
     esat::DrawClear(0, 0, 0);
 }
+
 
 void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **punteroBalas, Sprites **spritesItems, Jugador *player,
                  COL::object *gasofa, ItemDrop *itemdrop, esat::SpriteHandle **platform_sprite, TPlatform **g_platforms,
@@ -76,6 +127,15 @@ void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **pu
     InitGameVariables(game);
     InitLivesSprite(sprite_lives);// Fuente
     LoadFonts();
+
+
+
+
+    //
+    
+    ReservaMemoriaNave(&parteNave);
+    InstanciarPartesDeLaNave(parteNave);
+
 }
 
 void GetInput(bool *moverLeft, bool *moverRight, bool *ascender, Bala *punteroBalas, Jugador player,
@@ -108,6 +168,10 @@ void GetInput(bool *moverLeft, bool *moverRight, bool *ascender, Bala *punteroBa
         }
         game->current_screen = TScreen::GAME_SCREEN;
       }
+
+
+      //
+
     }
 }
 
@@ -163,6 +227,11 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         LoopPickItems(*player, itemdrop, spritesItems);
 
         MoverNave(nave);
+
+
+
+        //
+
     }
 }
 
@@ -191,7 +260,12 @@ void DrawAll(Sprites *spritesColores, Sprites *spritesPersonaje, Bala *punteroBa
 
         DibujarGasofa(gasofa, spritesItems, *nave);
         DibujarItems(itemdrop, spritesItems);
-        DibujarNave(nave, spritesNave);
+        //DibujarNave(nave, spritesNave);
+
+
+
+        //
+        DibujarPartesNave(parteNave, spritesNave);
     }
 }
 
@@ -258,6 +332,8 @@ int esat::main(int argc, char **argv)
     float menu_blink_timer = 0.0f;
     bool menu_highlight_white = true;
 
+    //Partes Nave
+
     InitiateAll(&spritesColores, &spritesPersonaje, &punteroBalas, &spritesItems, &player, &gasofa, &itemdrop, &platform_sprite, &g_platforms, &loading_sprite, &game,
                 &sprite_lives, &SpritesNaves, &nave);
 
@@ -265,7 +341,7 @@ int esat::main(int argc, char **argv)
     while (esat::WindowIsOpened() && !esat::IsSpecialKeyDown(esat::kSpecialKey_Escape))
     {
         InitiateFrame();
-
+        TestMousePosition();
         GetInput(&moverLeft, &moverRight, &ascender, punteroBalas, player, &game, &menu_selection_player, &menu_selection_control);
         Update(&player, ascender, punteroBalas, moverLeft, moverRight, &frame, gasofa, &itemdrop, spritesItems, g_platforms, &game, &timer,
                 &menu_blink_timer, &menu_highlight_white, &nave);
