@@ -16,9 +16,6 @@
 
 #include "audio.cc"
 #include <esat_extra/soloud/soloud.h>
-//! ESTO SE VA FUERA
-// #define spritewidth 34
-// #define spriteheight 50
 
 struct Jugador
 {
@@ -78,6 +75,7 @@ void InstanciarSpritesColores(Sprites *punteroSprites)
   punteroSprites[2].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/azul1.png");
   punteroSprites[3].sprite = esat::SpriteFromFile("SPRITES/JUGADOR/verde1.png");
 }
+
 void InstanciarSpritesPlayer(Sprites *punteroSprites)
 {
   // suelo
@@ -159,7 +157,7 @@ void InstanciarBalas(Bala *bala)
   }
 }
 
-void InstaciarGasofa_Nave(COL::object *gasofa, COL::object *prueba_nave, Sprites punteroSprites)
+void InstaciarGasofa_Nave(COL::object *gasofa, Sprites punteroSprites)
 {
   int spritewidth = 34;
   int spriteheight = 50;
@@ -169,11 +167,6 @@ void InstaciarGasofa_Nave(COL::object *gasofa, COL::object *prueba_nave, Sprites
 
   gasofa->position.x = kScreenWidth - spritewidth;
   gasofa->position.y = kScreenHeight - spriteheight;
-
-  /*prueba_nave->position.x = kScreenWidth - 100;
-  prueba_nave->position.y = kScreenHeight - 180;
-  prueba_nave->width = 80;
-  prueba_nave->height = 180;*/
 }
 void InstanciarItems(ItemDrop *item, Sprites *punteroSprites)
 {
@@ -290,7 +283,6 @@ void ColisionDisparos(Bala *bala, COL::object objeto)
     {
       if (CheckColision(bala[i].config_bala.colision, objeto.colision))
       {
-        printf("Colision balas!!! ");
         bala[i].activa = false;
       }
     }
@@ -396,13 +388,15 @@ void DibujarJugador(Sprites *punteroSprites, Jugador jugador, int frame)
   esat::DrawSprite(punteroSprites[base + frame].sprite, jugador.pos.x, jugador.pos.y);
 }
 
-void DibujarGasofa(COL::object gasofa, Sprites *punteroSprites)
+void DibujarGasofa(COL::object gasofa, Sprites *punteroSprites, Nave nave)
 {
-  float puntos[8] = {gasofa.position.x, gasofa.position.y, gasofa.position.x + 32, gasofa.position.y, gasofa.position.x + 32, gasofa.position.y + 32, gasofa.position.x, gasofa.position.y + 32};
+  if(nave.direccion == Direction::STATIC){
+    float puntos[8] = {gasofa.position.x, gasofa.position.y, gasofa.position.x + 32, gasofa.position.y, gasofa.position.x + 32, gasofa.position.y + 32, gasofa.position.x, gasofa.position.y + 32};
 
-  esat::DrawSetFillColor(255, 0, 255);
-  esat::DrawSolidPath(puntos, 4);
-  esat::DrawSprite(punteroSprites[5].sprite, gasofa.position.x, gasofa.position.y);
+    esat::DrawSetFillColor(255, 0, 255);
+    esat::DrawSolidPath(puntos, 4);
+    esat::DrawSprite(punteroSprites[5].sprite, gasofa.position.x, gasofa.position.y);
+  }
 }
 // ! convertir gasofa a ItemDrop IMPORTANTE !!!!!!! y ahorrarse una funcion aqui
 void DibujarItems(ItemDrop item, Sprites *punteroSprites)
@@ -498,10 +492,11 @@ void Ascender_Gravedad(Jugador *jugador, bool ascendiendo)
 
 void SpawnItem(COL::object &item)
 {
+  //!Cambiar por la altura del HUD
+  const int hud_height = item.height;
   float x = rand() % (kScreenWidth - item.width);
-  float y = rand() % (kScreenHeight - item.height);
   item.position.x = x;
-  item.position.y = y;
+  item.position.y = kScreenHeight - hud_height;
 }
 
 void GravedadItem(COL::object &item)
@@ -528,36 +523,33 @@ void UpdateGasofaPosition(Jugador player, COL::object &gasofa)
   gasofa.position.y = player.pos.y + player.spriteHeight / 2;
 }
 
-void LoopGasofa(Jugador &player, COL::object &gasofa, COL::object prueba_nave, int &contador_gasofa, int &numero_max_gasofa)
+void LoopGasofa(Jugador &player, COL::object &gasofa, Nave *nave)
 {
-  GravedadItem(gasofa);
-  if (COL::CheckColision(player.config_colision.colision, gasofa.colision))
-  {
-    player.tiene_gasofa = true;
-    UpdateGasofaPosition(player, gasofa);
-    printf("Colision gasolinas \n");
-  }
-  if (player.tiene_gasofa)
-  {
-    if (COL::CheckColision(player.config_colision.colision, prueba_nave.colision))
+  if(nave->direccion == Direction::STATIC){
+    GravedadItem(gasofa);
+    if (COL::CheckColision(player.config_colision.colision, gasofa.colision))
     {
-      player.tiene_gasofa = false;
-      contador_gasofa++;
-      if (contador_gasofa >= numero_max_gasofa)
+      player.tiene_gasofa = true;
+      UpdateGasofaPosition(player, gasofa);
+    }
+    if (player.tiene_gasofa)
+    {
+      if (COL::CheckColision(player.config_colision.colision, nave->nave_config.colision))
       {
-        contador_gasofa = 0;
-        printf("%d bidones de gasofa colocados \n", numero_max_gasofa);
+        player.tiene_gasofa = false;
+        nave->fuelAmount++;
+        SpawnItem(gasofa);
       }
-      SpawnItem(gasofa);
     }
   }
 }
 
-void ActualizarColisionesItems(Jugador *player, COL::object &gasofa, COL::object &prueba_nave, ItemDrop &item)
+//!El player se queda o se va?
+void ActualizarColisionesItems(Jugador *player, COL::object &gasofa, ItemDrop &item, Nave *nave)
 {
   // player->config_colision.colision = COL::CreateColision(player->config_colision);
   gasofa.colision = COL::CreateColision(gasofa);
-  prueba_nave.colision = COL::CreateColision(prueba_nave);
+  nave->nave_config.colision = COL::CreateColision(nave->nave_config);
   item.item_config.colision = COL::CreateColision(item.item_config);
 }
 
@@ -572,7 +564,6 @@ void LoopPickItems(Jugador player, ItemDrop *item, Sprites *sprites)
   if (COL::CheckColision(player.config_colision.colision, item->item_config.colision))
   {
     item->recogido = true;
-    printf("Colision objetos Item !!!!!!!!!!!!!! \n");
   }
   if (item->recogido)
   {

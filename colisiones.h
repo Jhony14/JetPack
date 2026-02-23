@@ -26,6 +26,7 @@ namespace COL{
         vec2 p1, p2;
     };
 
+    //!El sprite de este struct se usa?
     struct object
     {
         esat::SpriteHandle sprite;

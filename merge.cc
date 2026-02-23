@@ -40,7 +40,7 @@ void InitiateFrame()
 }
 
 void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **punteroBalas, Sprites **spritesItems, Jugador *player,
-                 COL::object *gasofa, COL::object *prueba_nave, ItemDrop *itemdrop, esat::SpriteHandle **platform_sprite, TPlatform **g_platforms,
+                 COL::object *gasofa, ItemDrop *itemdrop, esat::SpriteHandle **platform_sprite, TPlatform **g_platforms,
                 esat::SpriteHandle **loading_sprite, TGame *game, esat::SpriteHandle* sprite_lives, Sprites** spritesNave, Nave* nave)
 {
     esat::WindowInit(kScreenWidth, kScreenHeight);
@@ -67,7 +67,7 @@ void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **pu
     InstanciarBalas(*punteroBalas);
     InstanciarPlayer(player);
     //! HAY QUE SUSTITUIR PRUEBA_NAVE POR LA NAVE? CREO QUE LA FUNCION INSTANCIA LA NAVE TAMBIEN. IGUAL HAY QUE CAMBIARLO
-    InstaciarGasofa_Nave(gasofa, prueba_nave, (*spritesItems)[5]);
+    InstaciarGasofa_Nave(gasofa, (*spritesItems)[5]);
     AudioInit();
     InstanciarItems(itemdrop, *spritesItems);
     InstanciarNave(nave);
@@ -113,9 +113,8 @@ void GetInput(bool *moverLeft, bool *moverRight, bool *ascender, Bala *punteroBa
 }*/
 
 void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, bool moverRight, int *frame,
-            COL::object &gasofa, COL::object &prueba_nave, ItemDrop *itemdrop, int &contador_gasofa, int numero_max_gasofa, 
-            Sprites *spritesItems, TPlatform* g_platforms, TGame* game, float* timer, float* menu_blink_timer, bool* menu_highlight_white,
-            Nave* nave)
+            COL::object &gasofa, ItemDrop *itemdrop, Sprites *spritesItems, TPlatform* g_platforms, 
+            TGame* game, float* timer, float* menu_blink_timer, bool* menu_highlight_white, Nave* nave)
 {
     if(game->current_screen != TScreen::GAME_SCREEN)
         ScreenSelector(game, timer, menu_blink_timer, menu_highlight_white);
@@ -124,27 +123,27 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         ActualizarDisparos(punteroBalas, *player);
         LoopMoverJugador(moverLeft, moverRight, player);
         ControlarLimitesPantalla(player, punteroBalas);
-    
+        //! Cambiar también el tope de la altura para que no toque el HUD
+        *frame = ActualizarAnimacionJugador(*player);
+        ColisionPlayerPlatforma(*player, g_platforms);
+        
         // Pasar vidas y puntos a la interfaz
         UpdateInterface(&player->puntos, &player->vidas, &player->player_id, game);
         //TestValues(player);
-
+        
         if (esat::IsKeyDown('Y') || esat::IsKeyDown('y'))
-            player->muerto = true;
+        player->muerto = true;
         // ! Colisiones
         if (player->colisiona && !player->muerto)
-            ColisionJugador(player); // Actualizar colider a player
+        ColisionJugador(player); // Actualizar colider a player
         if (player->muerto || !player->colisiona)
-            ResetPlayer_OnDead(player);
-        ActualizarColisionesItems(player, gasofa, prueba_nave, *itemdrop);
-        //! Meter aqui la nave
-        LoopGasofa(*player, gasofa, prueba_nave, contador_gasofa, numero_max_gasofa);
-        LoopPickItems(*player, itemdrop, spritesItems);
-        ColisionPlayerPlatforma(*player, g_platforms);
+        ResetPlayer_OnDead(player);
 
-        //! Cambiar también el tope de la altura para que no toque el HUD
-        ControlarLimitesPantalla(player, punteroBalas);
-        *frame = ActualizarAnimacionJugador(*player);
+        ActualizarColisionesItems(player, gasofa, *itemdrop, nave);
+        //! Meter aqui la nave
+        LoopGasofa(*player, gasofa, nave);
+        LoopPickItems(*player, itemdrop, spritesItems);
+
         MoverNave(nave);
     }
 }
@@ -172,7 +171,7 @@ void DrawAll(Sprites *spritesColores, Sprites *spritesPersonaje, Bala *punteroBa
             DibujarJugador(spritesPersonaje, player, frame);
         }
 
-        DibujarGasofa(gasofa, spritesItems);
+        DibujarGasofa(gasofa, spritesItems, *nave);
         DibujarItems(itemdrop, spritesItems);
         DibujarNave(nave, spritesNave);
     }
@@ -218,8 +217,7 @@ void FreeAll(Sprites **spritesColores, Sprites **spritesPersonaje, Sprites **spr
 
 int esat::main(int argc, char **argv)
 {
-    const int terrain_height = 16, numero_max_gasofa = 3;
-    int frame, contador_gasofa = 0;
+    int frame;
     bool moverLeft, moverRight, ascender;
     Sprites *spritesColores = nullptr, *spritesPersonaje = nullptr, *spritesItems = nullptr, *SpritesNaves = nullptr;
     Bala *punteroBalas = nullptr;
@@ -242,7 +240,7 @@ int esat::main(int argc, char **argv)
     float menu_blink_timer = 0.0f;
     bool menu_highlight_white = true;
 
-    InitiateAll(&spritesColores, &spritesPersonaje, &punteroBalas, &spritesItems, &player, &gasofa, &prueba_nave, &itemdrop, &platform_sprite, &g_platforms, &loading_sprite, &game,
+    InitiateAll(&spritesColores, &spritesPersonaje, &punteroBalas, &spritesItems, &player, &gasofa, &itemdrop, &platform_sprite, &g_platforms, &loading_sprite, &game,
                 &sprite_lives, &SpritesNaves, &nave);
 
     // Main game loop
@@ -251,8 +249,8 @@ int esat::main(int argc, char **argv)
         InitiateFrame();
 
         GetInput(&moverLeft, &moverRight, &ascender, punteroBalas, player, &game, &menu_selection_player, &menu_selection_control);
-        Update(&player, ascender, punteroBalas, moverLeft, moverRight, &frame, gasofa, prueba_nave, &itemdrop, contador_gasofa, 
-                numero_max_gasofa, spritesItems, g_platforms, &game, &timer, &menu_blink_timer, &menu_highlight_white, &nave);
+        Update(&player, ascender, punteroBalas, moverLeft, moverRight, &frame, gasofa, &itemdrop, spritesItems, g_platforms, &game, &timer,
+                &menu_blink_timer, &menu_highlight_white, &nave);
         DrawAll(spritesColores, spritesPersonaje, punteroBalas, player, frame, gasofa, spritesItems, itemdrop, g_platforms, platform_sprite, 
                 game, loading_sprite, menu_selection_player, menu_selection_control, menu_highlight_white, sprite_lives, &nave, SpritesNaves);
 

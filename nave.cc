@@ -11,7 +11,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-//#include "colisiones.h"
+#include "colisiones.h"
 
 /*
 // Windows dimensions with default values
@@ -37,7 +37,7 @@ struct Nave
   esat::Vec2 pos;
   Direction direccion;
   int height = 32, fuelAmount;
-  //COL::object nave_config;
+  COL::object nave_config;
 };
 
 struct Sprites
@@ -78,6 +78,10 @@ void InstanciarNave(Nave *nave)
   nave->pos.y = kScreenHeight - (nave->height * 3) - terrain_height;
   nave->fuelAmount = 0;
   nave->direccion = Direction::STATIC;
+  nave->nave_config.position.x = nave->pos.x;
+  nave->nave_config.position.y = 0;
+  nave->nave_config.width = 32;
+  nave->nave_config.height = kScreenHeight - terrain_height;
 }
 
 void MoverNave(Nave *nave)
