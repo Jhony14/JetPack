@@ -20,11 +20,6 @@
 // #define spritewidth 34
 // #define spriteheight 50
 
-struct Sprites
-{
-  esat::SpriteHandle sprite;
-};
-
 struct Jugador
 {
   esat::Vec2 pos;
@@ -175,10 +170,10 @@ void InstaciarGasofa_Nave(COL::object *gasofa, COL::object *prueba_nave, Sprites
   gasofa->position.x = kScreenWidth - spritewidth;
   gasofa->position.y = kScreenHeight - spriteheight;
 
-  prueba_nave->position.x = kScreenWidth - 100;
+  /*prueba_nave->position.x = kScreenWidth - 100;
   prueba_nave->position.y = kScreenHeight - 180;
   prueba_nave->width = 80;
-  prueba_nave->height = 180;
+  prueba_nave->height = 180;*/
 }
 void InstanciarItems(ItemDrop *item, Sprites *punteroSprites)
 {

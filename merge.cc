@@ -16,26 +16,14 @@ const int kScreenWidth = 512;
 const int kScreenHeight = 384;
 double delta_time;
 
-#include "jugador.cc"
 #include "nave.cc"
+#include "jugador.cc"
 
 // FPS
 unsigned char fps = 25;
 double current_time;
 double last_time = 0;
 
-/*struct PlayerVariables
-{
-    Jugador player;
-    bool ascender;
-    Bala punteroBalas;
-    bool moverLeft;
-    bool moverRight;
-    int frame;
-};
-
- (Jugador* player, bool ascender, Bala* punteroBalas, bool moverLeft, bool moverRight, int* frame,
-            int* head_y, int* body_y, int* tail_y, int speed, bool rocket_started, COL::object gasofa, COL::object prueba_nave, ItemDrop itemdrop, int contador_gasofa, int numero_max_gasofa, Sprites *spritesItems)*/
 void InitiateFrame()
 {
     // Calculate time elapsed since the last frame
@@ -72,11 +60,6 @@ void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **pu
     InstanciarSpritesPlayer(*spritesPersonaje);
     InstanciarSpritesItems(*spritesItems);
     InitSpriteNave(*spritesNave);
-
-    // Fuente
-    LoadFonts();
-
-    //! RECURRE A VARIABLES GLOBALES DE INTERFACE.CC
     InitPlatformSprites(platform_sprite, g_platforms);
     InitLoadingSprites(loading_sprite);
 
@@ -89,7 +72,8 @@ void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **pu
     InstanciarItems(itemdrop, *spritesItems);
     InstanciarNave(nave);
     InitGameVariables(game);
-    InitLivesSprite(sprite_lives);
+    InitLivesSprite(sprite_lives);// Fuente
+    LoadFonts();
 }
 
 void GetInput(bool *moverLeft, bool *moverRight, bool *ascender, Bala *punteroBalas, Jugador player,
@@ -121,12 +105,12 @@ void GetInput(bool *moverLeft, bool *moverRight, bool *ascender, Bala *punteroBa
   if(esat::IsSpecialKeyPressed(esat::kSpecialKey_Keypad_3)) (*player).puntos -= 1;
   if(esat::IsSpecialKeyPressed(esat::kSpecialKey_Keypad_4)) (*player).vidas -= 1;
   if(esat::IsSpecialKeyPressed(esat::kSpecialKey_Keypad_5)) (*player).player_id -= 1;
-}*/
+}
   if(esat::IsSpecialKeyDown(esat::kSpecialKey_Keypad_4)) (*player).vidas -= 1;
 
   if(esat::IsSpecialKeyDown(esat::kSpecialKey_Keypad_5)) SavePlayerData(player);
   if(esat::IsSpecialKeyDown(esat::kSpecialKey_Keypad_6)) LoadPlayerData(player);
-}
+}*/
 
 void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, bool moverRight, int *frame,
             COL::object &gasofa, COL::object &prueba_nave, ItemDrop *itemdrop, int &contador_gasofa, int numero_max_gasofa, 
@@ -161,14 +145,14 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         //! Cambiar también el tope de la altura para que no toque el HUD
         ControlarLimitesPantalla(player, punteroBalas);
         *frame = ActualizarAnimacionJugador(*player);
-        TriggerNave(nave);
         MoverNave(nave);
     }
 }
 
 void DrawAll(Sprites *spritesColores, Sprites *spritesPersonaje, Bala *punteroBalas, Jugador player, int frame, 
             COL::object gasofa, Sprites *spritesItems, ItemDrop itemdrop, TPlatform* g_platforms, esat::SpriteHandle* platform_sprite,
-            TGame game, esat::SpriteHandle* loading_sprite, int menu_selection_player, int menu_selection_control, int menu_highlight_white, esat::SpriteHandle sprite_vidas)
+            TGame game, esat::SpriteHandle* loading_sprite, int menu_selection_player, int menu_selection_control, int menu_highlight_white, esat::SpriteHandle sprite_vidas,
+            Nave* nave, Sprites* spritesNave)
 {
     if(game.current_screen == TScreen::IMAGE)
       InitialImage(loading_sprite);
@@ -190,6 +174,7 @@ void DrawAll(Sprites *spritesColores, Sprites *spritesPersonaje, Bala *punteroBa
 
         DibujarGasofa(gasofa, spritesItems);
         DibujarItems(itemdrop, spritesItems);
+        DibujarNave(nave, spritesNave);
     }
 }
 
@@ -236,7 +221,7 @@ int esat::main(int argc, char **argv)
     const int terrain_height = 16, numero_max_gasofa = 3;
     int frame, contador_gasofa = 0;
     bool moverLeft, moverRight, ascender;
-    Sprites *spritesColores = nullptr, *spritesPersonaje = nullptr, *spritesItems = nullptr, *SpritesNaves;
+    Sprites *spritesColores = nullptr, *spritesPersonaje = nullptr, *spritesItems = nullptr, *SpritesNaves = nullptr;
     Bala *punteroBalas = nullptr;
     Jugador player;
     COL::object gasofa;
@@ -269,7 +254,7 @@ int esat::main(int argc, char **argv)
         Update(&player, ascender, punteroBalas, moverLeft, moverRight, &frame, gasofa, prueba_nave, &itemdrop, contador_gasofa, 
                 numero_max_gasofa, spritesItems, g_platforms, &game, &timer, &menu_blink_timer, &menu_highlight_white, &nave);
         DrawAll(spritesColores, spritesPersonaje, punteroBalas, player, frame, gasofa, spritesItems, itemdrop, g_platforms, platform_sprite, 
-                game, loading_sprite, menu_selection_player, menu_selection_control, menu_highlight_white, sprite_lives);
+                game, loading_sprite, menu_selection_player, menu_selection_control, menu_highlight_white, sprite_lives, &nave, SpritesNaves);
 
         FinishFrame();
     }
