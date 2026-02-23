@@ -17,7 +17,6 @@ const int kScreenHeight = 384;
 double delta_time;
 
 #include "nave.cc"
-#include "jugador.cc"
 #include "enemigos.h"
 
 
@@ -25,6 +24,30 @@ double delta_time;
 unsigned char fps = 25;
 double current_time;
 double last_time = 0;
+
+//INCLUIR LUEGO
+int level=1;
+bool toogle = false;
+
+
+//INCLUIR LUEGO
+void LevelManager(ENE::EnemyManager *mgr){
+    switch (level){
+        case 1:
+        if(!toogle){
+            for(int i=0;i<1;i++){ENE::SpawnEnemy(mgr,ENE::KMeteorites,-32,rand()%360);}
+            toogle = true;
+        }
+
+        break;
+    }
+}
+
+//INCLUIR LUEGO
+bool LevelCompleted(){
+    return false;
+}
+
 
 void InitiateFrame()
 {
@@ -58,6 +81,9 @@ void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **pu
     *spritesItems = (Sprites *)malloc(6 * sizeof(Sprites));
     *spritesNave = InstanciarSpritesNave(16);
 
+    //INCLUIR LUEGO
+    *mgr = (ENE::EnemyManager*)malloc(sizeof(ENE::EnemyManager));
+
     // SPRITES
     InstanciarSpritesColores(*spritesColores);
     InstanciarSpritesPlayer(*spritesPersonaje);
@@ -78,9 +104,10 @@ void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **pu
     InitLivesSprite(sprite_lives);// Fuente
     LoadFonts();
 
-    //enemigos
-    ENE::InitManager(*mgr,10);
+    //INCLUIR LUEGO
+    ENE::InitManager(*mgr,1);
     ENE::InitVFXSystem();
+
 }
 
 void GetInput(bool *moverLeft, bool *moverRight, bool *ascender, Bala *punteroBalas, Jugador player,
@@ -170,8 +197,10 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
 
         MoverNave(nave);
 
-        ENE::UpdateAndDraw(*mgr);
-        ENE::InitVFXSystem();
+        //INCLUIR LUEGO
+        ENE::SpawnEnemy(*mgr,ENE::KAlien,10,200);
+        ENE::UpdateAndDraw(*mgr, player);
+        ENE::DrawActiveVFX();
     }
 }
 
@@ -240,6 +269,8 @@ void FreeAll(Sprites **spritesColores, Sprites **spritesPersonaje, Sprites **spr
     esat::SpriteRelease(gasofa->sprite);
     esat::SpriteRelease(itemdrop->item_config.sprite);
     FreeAudio();
+
+    //INCLUIR LUEGO
     ENE::FreeManager(*mgr);
     ENE::FreeVFX();
 }

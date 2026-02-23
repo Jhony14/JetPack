@@ -14,6 +14,7 @@
 
 // Group Libraries
 #include "colisiones.h"
+#include "jugador.cc"
 
 #ifndef ENEMIGOS_H
 #define ENEMIGOS_H
@@ -141,8 +142,8 @@ namespace ENE{
 
     void SpeedEnemies(Enemy *e){
 
-        float speedX = ((float)rand() / (float)RAND_MAX) + 0.5f;
-        float speedY = ((float)rand() / (float)RAND_MAX) + 0.5f;
+        float speedX = ((float)rand() / (float)RAND_MAX) + 2.0f;
+        float speedY = ((float)rand() / (float)RAND_MAX) + 2.0f;
 
         if(rand() % 2 == 0) speedX *= -1;
         if(rand() % 2 == 0) speedY *= -1;
@@ -219,7 +220,7 @@ namespace ENE{
             if(e->type == KMeteorites){
 
             }
-            if (COL::WindowsColision(ecol,COL::down,0)){
+            if (COL::WindowsColision(ecol,COL::down,-16)){
                 e->active=false;
                 ExplodeAt(e->position.x,e->position.y, e->Color);
                 if(e->type == KMeteorites){
@@ -234,12 +235,12 @@ namespace ENE{
         else if(e->type == KFurballs || e->type == KBubbles || e->type == KFlower){
             if (COL::WindowsColision(ecol,COL::right,100)){e->position.x=-32;}
             if (COL::WindowsColision(ecol,COL::left,100)){e->position.x=(256*2)+32;}
-            if (COL::WindowsColision(ecol,COL::top,0) || COL::WindowsColision(ecol,COL::down,0)){e->speed.y *= -1;}
+            if (COL::WindowsColision(ecol,COL::top,0) || COL::WindowsColision(ecol,COL::down,-16)){e->speed.y *= -1;}
         }
         else if(e->type == KAlien){
             if (COL::WindowsColision(ecol,COL::right,100)){e->position.x=-32;}
             if (COL::WindowsColision(ecol,COL::left,100)){e->position.x=(256*2)+32;}
-            if (e->position.y < rand()%(192*2)-80 && e->speed.y < 0 || COL::WindowsColision(ecol,COL::down,0)){e->speed.y *= -1;}
+            if (e->position.y < rand()%(192*2)-80 && e->speed.y < 0 || COL::WindowsColision(ecol,COL::down,-16)){e->speed.y *= -1;}
         }
         else if(e->type == KUfo) {
             if (e->speed.y < 0) {
@@ -251,7 +252,7 @@ namespace ENE{
 
                 e->speed.x = sinf(esat::Time() * 0.005f) * 1.5f; 
                 
-                if (COL::WindowsColision(ecol, COL::down, 0)) {
+                if (COL::WindowsColision(ecol, COL::down, -16)) {
                     e->speed.y = -1.0f;
                 }
             }
@@ -267,7 +268,7 @@ namespace ENE{
             else {
                 e->speed.x = 1.0f;
             }
-            if (COL::WindowsColision(ecol, COL::down, 0) || COL::WindowsColision(ecol, COL::top, 0) || COL::WindowsColision(ecol,COL::right,0)) {
+            if (COL::WindowsColision(ecol, COL::down, -16) || COL::WindowsColision(ecol, COL::top, 0) || COL::WindowsColision(ecol,COL::right,0)) {
                 e->active = false;
                 ExplodeAt(e->position.x, e->position.y, e->Color);
                 SpawnEnemy(mgr, KJets, 0, rand() % 360);
@@ -304,7 +305,7 @@ namespace ENE{
         free(P);
     }
 
-    void UpdateAndDraw(EnemyManager *mgr){
+    void UpdateAndDraw(EnemyManager *mgr, Jugador *player){
         for(int i=0;i<mgr->pool_size;i++){
             Enemy *e = &(*(mgr->pool+i));
             if(e->active){
@@ -328,6 +329,10 @@ namespace ENE{
 
                 esat::DrawSprite(*(t->sprite + frame), e->position.x, e->position.y);
 
+                if(COL::CheckColision(e->col,player->config_colision.colision)){
+                    player->vidas --;
+                }
+                printf("%d\n",player->vidas);
                 EnemiesAI(e,e->col, mgr);
             }
         }
