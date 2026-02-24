@@ -336,14 +336,17 @@ namespace ENE{
     void DrawActiveVFX(){
         for(int i=0;i<20;i++){
             VisualEffect *fx = (g_fx_pool + i);
-            COL:: colision col = {fx->x,fx->y,fx->x+48,fx->y+32};
 
             if(fx->active){
                 int frame = (int)((esat::Time() - fx->startTime)/100);
 
                 if(frame < 3){
+                    esat::SpriteHandle sprite = *(g_fx_sprites + frame);
+                    float width = (float)esat::SpriteWidth(sprite);
+                    float height = (float)esat::SpriteHeight(sprite);
+                    COL::colision col = {fx->x, fx->y, fx->x + width, fx->y + height};
                     BGcolor(col,fx->color);
-                    esat::DrawSprite(*(g_fx_sprites+frame),fx->x,fx->y);
+                    esat::DrawSprite(sprite, fx->x, fx->y);
                 }else{
                     fx->active = false;
                 }
