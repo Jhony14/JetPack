@@ -659,6 +659,17 @@ void ColisionJugador(Jugador *player)
   player->config_colision.colision = COL::CreateColision(player->config_colision);
 }
 
+void AnimationDust(Jugador *player, bool isOnPlatform)
+{
+  if (isOnPlatform && player->volando) {
+    float explode_x = player->pos.x + (player->spriteWidth * 0.5f) - 24.0f;
+    float explode_y = player->pos.y + player->spriteHeight - 32.0f;
+    ENE::ColorType color = (ENE::ColorType)(rand() % 4);
+    
+    ENE::ExplodeAt(explode_x, explode_y, color);
+  }
+}
+
 void ColisionPlayerPlatforma(Jugador &player, TPlatform *g_platforms)
 {
   const unsigned char kplatform_numbers = 3;

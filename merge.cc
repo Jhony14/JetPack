@@ -78,8 +78,8 @@ void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **pu
     LoadFonts();
 
     //enemigos
-    /*ENE::InitManager(*mgr,10);
-    ENE::InitVFXSystem();*/
+    /*ENE::InitManager(*mgr,10);*/
+    ENE::InitVFXSystem();
 }
 
 void GetInput(bool *moverLeft, bool *moverRight, bool *ascender, Bala *punteroBalas, Jugador player,
@@ -162,9 +162,11 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         LoopPickItems(*player, itemdrop, spritesItems);
         
         LoopMoverJugador(moverLeft, moverRight, player);
+        bool isOnPlatform = !player->volando;
         Ascender_Gravedad(player, ascender);
         ColisionJugador(player); // Actualizar colider a player
         ColisionPlayerPlatforma(*player, g_platforms); // No subir porque da error
+        AnimationDust(player, isOnPlatform);
 
         MoverNave(nave);
 
@@ -198,6 +200,7 @@ void DrawAll(Sprites *spritesColores, Sprites *spritesPersonaje, Bala *punteroBa
         DibujarGasofa(gasofa, spritesItems, *nave);
         DibujarItems(itemdrop, spritesItems);
         DibujarNave(nave, spritesNave);
+        ENE::DrawActiveVFX();
     }
 }
 
@@ -238,7 +241,7 @@ void FreeAll(Sprites **spritesColores, Sprites **spritesPersonaje, Sprites **spr
     esat::SpriteRelease(itemdrop->item_config.sprite);
     FreeAudio();
     //ENE::FreeManager(*mgr);
-    //ENE::FreeVFX();
+    ENE::FreeVFX();
 }
 
 int esat::main(int argc, char **argv)
