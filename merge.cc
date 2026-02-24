@@ -79,30 +79,36 @@ void DibujarPartesNave(ParteNave *parteNave, Sprites *punteroSprites){
         esat::DrawSprite(punteroSprites[i].sprite, parteNave[i].parteNaveConfig.position.x, parteNave[i].parteNaveConfig.position.y);
     }
 }
-// partenave . ccol
+
 void ActualizarColisionParteNave(ParteNave *parteNave){
     for(int i=0; i<2; i++){
-        COL::CreateColision(parteNave[i].parteNaveConfig);
+        parteNave[i].parteNaveConfig.colision = COL::CreateColision(parteNave[i].parteNaveConfig);
     }
 }
 
-void ActulizarPosParteNave(ParteNave *parteNave, Jugador *player, int parte){
-    parteNave[parte].parteNaveConfig.position.x = player->pos.x + 32;
-    parteNave[parte].parteNaveConfig.position.y = player->pos.y;
-}
-
-void ColisionNaveJugador(ParteNave *parteNave, Jugador *player){
-    if(COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision)){
+void ActualizarPosParteNave(ParteNave *parteNave, Jugador *player, int parte, bool jugador_lleva_objeto){
     
-        COL::ShowColision(parteNave[0].parteNaveConfig.colision);
+        printf(" jugador_lleva_objeto : %d \n", jugador_lleva_objeto);
+    if (jugador_lleva_objeto){
+        printf("Actualizar posicion \n");
+        parteNave[parte].parteNaveConfig.position.x = player->pos.x + 32;
+        parteNave[parte].parteNaveConfig.position.y = player->pos.y;
     }
+}
 
-    if(COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision)){
-        parteNave[1].parteNaveConfig.position.x = player->pos.x + 32;
-        parteNave[1].parteNaveConfig.position.y = player->pos.y;
-
-        COL::ShowColision(parteNave[1].parteNaveConfig.colision);
+void ColisionNaveJugador(ParteNave *parteNave, Jugador *player, bool jugador_lleva_objeto){
+    if(COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision)){
+        jugador_lleva_objeto = true;
+        printf("Colision objeto \n");
     }
+    ActualizarPosParteNave(parteNave, player, 0, jugador_lleva_objeto);
+
+    // if(COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision)){
+    //     parteNave[1].parteNaveConfig.position.x = player->pos.x + 32;
+    //     parteNave[1].parteNaveConfig.position.y = player->pos.y;   
+    // }
+    COL::ShowColision(parteNave[0].parteNaveConfig.colision);
+    COL::ShowColision(parteNave[1].parteNaveConfig.colision);
 }
 
 //
@@ -227,7 +233,7 @@ void TestValues(Jugador *player){
 
 void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, bool moverRight, int *frame,
             COL::object &gasofa, ItemDrop *itemdrop, Sprites *spritesItems, TPlatform* g_platforms, 
-            TGame* game, float* timer, float* menu_blink_timer, bool* menu_highlight_white, Nave* nave)
+            TGame* game, float* timer, float* menu_blink_timer, bool* menu_highlight_white, Nave* nave, bool jugador_lleva_objeto)
 {
     if(game->current_screen != TScreen::GAME_SCREEN)
         ScreenSelector(game, timer, menu_blink_timer, menu_highlight_white);
@@ -262,8 +268,9 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
 
 
         //
-        ColisionNaveJugador(parteNave, player);
+        // Actualziar(parteNave);
         ActualizarColisionParteNave(parteNave);
+        ColisionNaveJugador(parteNave, player, &jugador_lleva_objeto);
     }
 }
 
@@ -365,6 +372,7 @@ int esat::main(int argc, char **argv)
     bool menu_highlight_white = true;
 
     //Partes Nave
+    bool player_lleva_objeto = false;
 
     InitiateAll(&spritesColores, &spritesPersonaje, &punteroBalas, &spritesItems, &player, &gasofa, &itemdrop, &platform_sprite, &g_platforms, &loading_sprite, &game,
                 &sprite_lives, &SpritesNaves, &nave);
@@ -376,7 +384,7 @@ int esat::main(int argc, char **argv)
         TestMousePosition();
         GetInput(&moverLeft, &moverRight, &ascender, punteroBalas, player, &game, &menu_selection_player, &menu_selection_control);
         Update(&player, ascender, punteroBalas, moverLeft, moverRight, &frame, gasofa, &itemdrop, spritesItems, g_platforms, &game, &timer,
-                &menu_blink_timer, &menu_highlight_white, &nave);
+                &menu_blink_timer, &menu_highlight_white, &nave, &player_lleva_objeto);
         DrawAll(spritesColores, spritesPersonaje, punteroBalas, player, frame, gasofa, spritesItems, itemdrop, g_platforms, platform_sprite, 
                 game, loading_sprite, menu_selection_player, menu_selection_control, menu_highlight_white, sprite_lives, &nave, SpritesNaves);
 
