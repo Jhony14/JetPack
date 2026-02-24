@@ -55,7 +55,7 @@ namespace COL{
 
     bool CheckColision(colision colision1, colision colision2)
     {
-        if (colision1.p2.x > colision2.p1.x && colision1.p1.x < colision2.p2.x && colision1.p2.y > colision2.p1.y && colision1.p1.y < colision2.p2.y)
+        if (colision1.p2.x >= colision2.p1.x && colision1.p1.x <= colision2.p2.x && colision1.p2.y >= colision2.p1.y && colision1.p1.y <= colision2.p2.y)
         {
             return true;
         }
