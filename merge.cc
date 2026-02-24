@@ -101,7 +101,6 @@ void GetInput(bool *moverLeft, bool *moverRight, bool *ascender, Bala *punteroBa
           Jugador player2;
           InstanciarPlayer(&player2);
           player2.player_id = 2;
-          player2.isActive = false;
           SavePlayerDataToFile(&player, &player2);
         }else{
           SavePlayerDataToFile(&player);
@@ -137,13 +136,10 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
     if(game->current_screen != TScreen::GAME_SCREEN)
         ScreenSelector(game, timer, menu_blink_timer, menu_highlight_white);
     else{
-        Ascender_Gravedad(player, ascender);
         ActualizarDisparos(punteroBalas, *player);
-        LoopMoverJugador(moverLeft, moverRight, player);
         ControlarLimitesPantalla(player, punteroBalas);
         //! Cambiar también el tope de la altura para que no toque el HUD
         *frame = ActualizarAnimacionJugador(*player);
-
         
         // Pasar vidas y puntos a la interfaz
         UpdateInterface(&player->puntos, &player->vidas, &player->player_id, game);
@@ -153,15 +149,17 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         player->muerto = true;
         // ! Colisiones
         if (player->colisiona && !player->muerto)
-        ColisionJugador(player); // Actualizar colider a player
         if (player->muerto || !player->colisiona)
         ResetPlayer_OnDead(player);
-
+    
         ActualizarColisionesItems(player, gasofa, *itemdrop, nave);
         //! Meter aqui la nave
         LoopGasofa(*player, gasofa, nave);
         LoopPickItems(*player, itemdrop, spritesItems);
-
+        
+        LoopMoverJugador(moverLeft, moverRight, player);
+        Ascender_Gravedad(player, ascender);
+        ColisionJugador(player); // Actualizar colider a player
         ColisionPlayerPlatforma(*player, g_platforms); // No subir porque da error
 
         MoverNave(nave);
