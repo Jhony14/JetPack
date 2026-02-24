@@ -189,7 +189,8 @@ void DibujarNave(Nave *nave, Sprites *punteroSprites)
     DrawRocketLayer(3, punteroSprites, -1, nave->pos.x, nave->pos.y, nave->height);
 
     //Calcula si el espacio entre el suelo y la base del cohete es como mínimo igual a explosion_size
-    if(kScreenHeight - terrain_height - (nave->pos.y + rocket_total_height) >= explosion_size) SetRocketExplosion(*nave, explosion_size, punteroSprites);
+    if(kScreenHeight - terrain_height - (nave->pos.y + rocket_total_height) >= explosion_size) 
+      SetRocketExplosion(*nave, explosion_size, punteroSprites);
 }
 
 /*int esat::main(int argc, char **argv){
