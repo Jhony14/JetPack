@@ -17,10 +17,10 @@
 #include "audio.cc"
 #include <esat_extra/soloud/soloud.h>
 
-struct Sprites
+/*struct Sprites
 {
   esat::SpriteHandle sprite;
-}
+}*/
 
 struct Jugador
 {
@@ -63,9 +63,8 @@ struct ItemDrop
 {
   COL::object item_config;
   int tipo;
-  bool recogido;
   float cooldown;
-  bool colocada;
+  bool recogido;
 };
 
 #include "data.cc"
@@ -178,6 +177,8 @@ void InstaciarGasofa_Nave(ItemDrop *gasofa, Sprites punteroSprites)
 
   gasofa->item_config.position.x = kScreenWidth - spritewidth;
   gasofa->item_config.position.y = kScreenHeight - spriteheight;
+  gasofa->cooldown = 5.0f;
+  gasofa->recogido = false;
 }
 void InstanciarItems(ItemDrop *item, Sprites *punteroSprites)
 {
@@ -524,10 +525,10 @@ void Ascender_Gravedad(Jugador *jugador, bool ascendiendo)
 void SpawnItem(COL::object &item)
 {
   //! Cambiar por la altura del HUD
-  const int hud_height = item.height;
+  const int hud_height = 50;
   float x = rand() % (kScreenWidth - item.width);
   item.position.x = x;
-  item.position.y = kScreenHeight - hud_height;
+  item.position.y = hud_height;
 }
 
 void GravedadItem(COL::object &item)
@@ -557,31 +558,31 @@ void UpdateGasofaPosition(Jugador player, ItemDrop &gasofa)
 void SpawnGasofaConTimer(Jugador &player, ItemDrop &gasofa)
 {
   static float timer = 0.0f;
-  float cooldown = 5.0f;
+  const float cooldown = 5.0f;
 
-  if (!player.gasofa_colocada)
-    return;
-  else
-  {
-    timer += delta_time;
+  //if (!player.gasofa_colocada)
+  //  return;
+  //else
+  //{
+  timer += delta_time;
     if (timer < cooldown)
     {
       timer = 0.0f;
       SpawnItem(gasofa.item_config);
     }
-  }
+  //}
 }
 
 void LoopGasofa(Jugador &player, ItemDrop &gasofa, Nave *nave)
 {
-
   if (nave->direccion == Direction::STATIC)
   {
     const int sprites_height = 16;
     if (player.tiene_gasofa == false)
       GravedadItem(gasofa.item_config);
-    if (COL::CheckColision(player.config_colision.colision, gasofa.item_config.colision))
+    if (COL::CheckColision(player.config_colision.colision, gasofa.item_config.colision) && gasofa.recogido == false)
     {
+      gasofa.recogido = true;
       player.tiene_gasofa = true;
       UpdateGasofaPosition(player, gasofa);
     }
@@ -591,7 +592,7 @@ void LoopGasofa(Jugador &player, ItemDrop &gasofa, Nave *nave)
       {
         player.tiene_gasofa = false;
         // sprites_height es tanto la altura del sprite del terreno como la de la gasofa
-        if (gasofa.item_config.position.y >= kScreenHeight - sprites_height * 2)
+        //if (gasofa.item_config.position.y >= kScreenHeight - sprites_height * 2)
           nave->fuelAmount++;
         // ! Revisar
         // fla
