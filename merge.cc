@@ -31,27 +31,34 @@ double last_time = 0;
 struct ParteNave{
   esat::Vec2 pos;
   COL::object parteNaveConfig;
-  COL::colision parteNaveColision;
 };
 
 
 //definicion funciones agregar luego
 
-ParteNave *parteNave;
+ParteNave *parteNave = nullptr;
 
 void ReservaMemoriaNave(ParteNave **parteNave){
     *parteNave = (ParteNave*) malloc(sizeof(ParteNave)*3);
 }
 
 void InstanciarPartesDeLaNave(ParteNave *parteNave){
+    int measure = 32;
+
     ParteNave cabeza;
     cabeza.parteNaveConfig.position.x = 105;
     cabeza.parteNaveConfig.position.y = 150-32;
+    cabeza.parteNaveConfig.height = measure;
+    cabeza.parteNaveConfig.width = measure;
+    cabeza.parteNaveConfig.colision = COL::CreateColision(cabeza.parteNaveConfig);
     parteNave[0] = cabeza;
 
     ParteNave cuerpo;
     cuerpo.parteNaveConfig.position.x = 256;
     cuerpo.parteNaveConfig.position.y = 180-32;
+    cuerpo.parteNaveConfig.height = measure;
+    cuerpo.parteNaveConfig.width = measure;
+    cuerpo.parteNaveConfig.colision = COL::CreateColision(cuerpo.parteNaveConfig);
     parteNave[1] = cuerpo;
 
     ParteNave cola;
@@ -72,7 +79,31 @@ void DibujarPartesNave(ParteNave *parteNave, Sprites *punteroSprites){
         esat::DrawSprite(punteroSprites[i].sprite, parteNave[i].parteNaveConfig.position.x, parteNave[i].parteNaveConfig.position.y);
     }
 }
+// partenave . ccol
+void ActualizarColisionParteNave(ParteNave *parteNave){
+    for(int i=0; i<2; i++){
+        COL::CreateColision(parteNave[i].parteNaveConfig);
+    }
+}
 
+void ActulizarPosParteNave(ParteNave *parteNave, Jugador *player, int parte){
+    parteNave[parte].parteNaveConfig.position.x = player->pos.x + 32;
+    parteNave[parte].parteNaveConfig.position.y = player->pos.y;
+}
+
+void ColisionNaveJugador(ParteNave *parteNave, Jugador *player){
+    if(COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision)){
+    
+        COL::ShowColision(parteNave[0].parteNaveConfig.colision);
+    }
+
+    if(COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision)){
+        parteNave[1].parteNaveConfig.position.x = player->pos.x + 32;
+        parteNave[1].parteNaveConfig.position.y = player->pos.y;
+
+        COL::ShowColision(parteNave[1].parteNaveConfig.colision);
+    }
+}
 
 //
 
@@ -231,7 +262,8 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
 
 
         //
-
+        ColisionNaveJugador(parteNave, player);
+        ActualizarColisionParteNave(parteNave);
     }
 }
 
