@@ -169,8 +169,8 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         ColisionJugador(player); // Actualizar colider a player
         ColisionPlayerPlatforma(*player, g_platforms); // No subir porque da error
         AnimationDust(player, isOnPlatform);
-
-        MoverNave(nave, player->config_colision);
+        ShowColision(nave->nave_config.colision);
+        MoverNave(nave, player->config_colision, &player->muerto);
         if(level == 1){
             for(int i=0;i<3;i++){
                 ENE::SpawnEnemy(mgr,ENE::KMeteorites,0,rand()%350);
