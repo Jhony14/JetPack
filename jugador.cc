@@ -586,8 +586,10 @@ void MoveGasofa(Jugador &player, ItemDrop &gasofa, TPlatform* g_platforms){
         colisionWithPlatform = true;
       }
     }
-    if(colisionWithPlatform)
+    if(colisionWithPlatform){
       gasofa.item_config.colision.p2.y = g_platforms[nPlatform].collision_platform.colision.p1.y + gasofa.item_config.height + 1;
+      gasofa.item_config.colision.p2.y = gasofa.item_config.colision.p2.y - gasofa.item_config.height;
+    }
     else
       GravedadItem(gasofa.item_config);
   }
