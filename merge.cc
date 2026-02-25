@@ -134,29 +134,53 @@ void ActualizarPosParteNave(ParteNave *parteNave, Jugador *player)
     }
 }
 
-void ColisionPartesNaveJugador(ParteNave *parteNave, Jugador *player, bool *primera_colocada)
+// void ColisionPartesNaveJugador(ParteNave *parteNave, Jugador *player, bool *primera_colocada)
+// {
+//     if (COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision) && !primera_colocada)
+//     {
+//         parteNave[0].recogido = true;
+//         *primera_colocada = true;
+//         printf("Colision objeto 1\n");
+//     }
+//     printf("%d\n", primera_colocada);
+//     if (primera_colocada)
+//     {
+//         if (COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision))
+//         {
+//             parteNave[1].recogido = true;
+//             printf("Colision objeto 2\n");
+//         }
+//     }
+//     ActualizarPosParteNave(parteNave, player);
+
+//     // if(COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision)){
+//     //     parteNave[1].parteNaveConfig.position.x = player->pos.x + 32;
+//     //     parteNave[1].parteNaveConfig.position.y = player->pos.y;
+//     // }
+//     COL::ShowColision(parteNave[0].parteNaveConfig.colision);
+//     COL::ShowColision(parteNave[1].parteNaveConfig.colision);
+// }
+
+
+void ColisionPartesNaveJugador(ParteNave *parteNave, Jugador *player, bool &primera_colocada)
 {
-    if (COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision) && !primera_colocada)
+    if (COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision) && !primera_colocada)
     {
-        parteNave[0].recogido = true;
-        *primera_colocada = true;
+        parteNave[1].recogido = true;
+        primera_colocada = true;
         printf("Colision objeto 1\n");
     }
-    printf("%d\n", *primera_colocada);
     if (primera_colocada)
     {
-        if (COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision))
+        if (COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision))
         {
-            parteNave[1].recogido = true;
-            printf("Colision objeto 2\n");
+            parteNave[1].recogido = false;
+            parteNave[0].recogido = true;
+            printf("Colision objeto 0\n");
         }
     }
     ActualizarPosParteNave(parteNave, player);
 
-    // if(COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision)){
-    //     parteNave[1].parteNaveConfig.position.x = player->pos.x + 32;
-    //     parteNave[1].parteNaveConfig.position.y = player->pos.y;
-    // }
     COL::ShowColision(parteNave[0].parteNaveConfig.colision);
     COL::ShowColision(parteNave[1].parteNaveConfig.colision);
 }
@@ -328,7 +352,7 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         //
         // Actualziar(parteNave);
         ActualizarColisionParteNave(parteNave);
-        ColisionPartesNaveJugador(parteNave, player, primera_colocada);
+        ColisionPartesNaveJugador(parteNave, player, *primera_colocada);
 
         ColisionColocarPartes(nave, parteNave, player);
     }
