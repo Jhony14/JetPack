@@ -163,8 +163,8 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         ResetPlayer_OnDead(player);
 
         ActualizarColisionesItems(gasofa, *itemdrop, nave);
-        LoopGasofa(*player, gasofa, nave);
-        LoopPickItems(*player, itemdrop, spritesItems);
+        LoopGasofa(*player, gasofa, nave, g_platforms);
+        LoopPickItems(*player, itemdrop, spritesItems, *nave, g_platforms);
 
         MoverNave(nave);
 
