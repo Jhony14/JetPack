@@ -16,6 +16,7 @@ const int kScreenWidth = 512;
 const int kScreenHeight = 384;
 double delta_time;
 
+#include "colisiones.h"
 #include "enemigos.h"
 #include "nave.cc"
 #include "jugador.cc"
@@ -169,7 +170,7 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         ColisionPlayerPlatforma(*player, g_platforms); // No subir porque da error
         AnimationDust(player, isOnPlatform);
 
-        MoverNave(nave, *mgr);
+        MoverNave(nave, player->config_colision);
         if(level == 1){
             for(int i=0;i<3;i++){
                 ENE::SpawnEnemy(mgr,ENE::KMeteorites,0,rand()%350);
