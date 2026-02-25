@@ -417,6 +417,7 @@ void DibujarItems(ItemDrop item, Sprites *punteroSprites)
 //______________________________
 void ControlarLimitesPantalla(Jugador *player, Bala *bala)
 {
+  const int hud_height = 50;
   //! (funcion carlos)
   if (player->pos.x > kScreenWidth)
     player->pos.x = -player->spriteWidth;
@@ -424,8 +425,8 @@ void ControlarLimitesPantalla(Jugador *player, Bala *bala)
     player->pos.x = kScreenWidth;
   if (player->pos.y >= kScreenHeight - player->spriteHeight - 16)
     player->pos.y = kScreenHeight - player->spriteHeight - 16;
-  if (player->pos.y <= 0)
-    player->pos.y = 0;
+  if (player->pos.y <= hud_height)
+    player->pos.y = hud_height;
 
   for (int i = 0; i < 20; i++)
   {
@@ -494,9 +495,9 @@ void Ascender_Gravedad(Jugador *jugador, bool ascendiendo)
 
 void SpawnItem(COL::object &item)
 {
-  //!Cambiar por la altura del HUD
-  const int hud_height = item.height;
-  float x = rand() % (kScreenWidth - item.width);
+  const int hud_height = 50;
+  //Que solo spawnee en el espacio que hay a la derecha o a la izquierda de la nave, pero no encima
+  float x = rand() % 2 ? rand() % (int)(kScreenWidth - item.width - (nave.pos.x + nave.nave_config.width)) + (nave.pos.x + nave.nave_config.width) : rand() % (int)(nave.pos.x - item.width);
   item.position.x = x;
   item.position.y = kScreenHeight - hud_height;
 }

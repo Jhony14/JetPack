@@ -163,6 +163,15 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         LoopPickItems(*player, itemdrop, spritesItems);
 
         MoverNave(nave);
+        if(level == 1){
+            for(int i=0;i<3;i++){
+                ENE::SpawnEnemy(mgr,ENE::KMeteorites,0,rand()%350);
+            }
+            for(int i=0;i<3;i++){
+                ENE::SpawnEnemy(mgr,ENE::KFurballs,-32,rand()%350);
+            }
+        }
+        ENE::UpdateEnemies(mgr);
     }
 }
 
