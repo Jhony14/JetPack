@@ -219,9 +219,7 @@ namespace ENE{
     
     void EnemiesAI(Enemy *e, COL::colision ecol, EnemyManager *mgr){
         if(e->type == KMeteorites || e->type == KDarts){
-            if(e->type == KMeteorites){
-
-            }
+        
             if (COL::WindowsColision(ecol,COL::down,-16)){
                 e->active=false;
                 ExplodeAt(e->position.x,e->position.y, e->Color);

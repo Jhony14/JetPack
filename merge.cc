@@ -168,6 +168,8 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         ColisionJugador(player); // Actualizar colider a player
         ColisionPlayerPlatforma(*player, g_platforms); // No subir porque da error
         AnimationDust(player, isOnPlatform);
+        
+        ColisionDisparos(punteroBalas, mgr);
 
         MoverNave(nave);
         if(level == 1){

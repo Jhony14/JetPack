@@ -160,7 +160,7 @@ namespace ENE{
             case KMeteorites:
                 if(speedX < 0){speedX*=-1;}
                 if(rand()%2 == 1){
-                    e->speed={speedX,0.3}; 
+                    e->speed={speedX,1}; 
                 }else{
                     e->speed={speedX,0};   
                 }
@@ -260,7 +260,7 @@ namespace ENE{
 
                 e->speed.x = sinf(esat::Time() * 0.005f) * 1.5f; 
                 
-                if (COL::WindowsColision(ecol, COL::down, 0)) {
+                if (COL::WindowsColision(ecol, COL::down, -16)) {
                     e->speed.y = -1.0f;
                 }
             }
@@ -269,12 +269,12 @@ namespace ENE{
         }
         else if(e->type == KJets) {
             e->count++;
-            if(e->count < 300) {
+            if(e->count < 80) {
                 e->speed.x=0;
-                e->speed.y = sinf(esat::Time() * 0.005f) * 1.0f; 
+                e->speed.y = sinf(esat::Time() * 0.005f) * 2.0f; 
             } 
             else {
-                e->speed.x = 1.0f;
+                e->speed.x = 4.0f;
             }
             if (COL::WindowsColision(ecol, COL::down, 0) || COL::WindowsColision(ecol, COL::top, 0) || COL::WindowsColision(ecol,COL::right,0)) {
                 e->active = false;
@@ -318,8 +318,8 @@ namespace ENE{
             Enemy *e = (mgr->pool+i);
             if(e->active){
 
-                e->position.y += e->speed.y;
-                e->position.x += e->speed.x;
+                e->position.y += e->speed.y * delta_time;
+                e->position.x += e->speed.x * delta_time;
 
                 ENE::EnemyTemplate myTemplate = mgr->templates[e->type];
 
