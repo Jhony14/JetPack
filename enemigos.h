@@ -101,9 +101,8 @@ namespace ENE{
             (mgr->templates+i)->sprite = (esat::SpriteHandle*)malloc((mgr->templates+i)->num_frames*sizeof(esat::SpriteHandle));
         }
 
-
-        *((mgr->templates+0)->sprite+0) = esat::SpriteFromFile("SPRITES/ENEMIGOS/enemigo1_1_2x.png");
-        *((mgr->templates+0)->sprite+1) = esat::SpriteFromFile("SPRITES/ENEMIGOS/enemigo1_2_2x.png");
+        *((mgr->templates+0)->sprite+0) = esat::SpriteFromFile("SPRITES/ENEMIGOS/enemigo_1_1_2x.png");
+        *((mgr->templates+0)->sprite+1) = esat::SpriteFromFile("SPRITES/ENEMIGOS/enemigo_1_2_2x.png");
 
         *((mgr->templates+1)->sprite+0) = esat::SpriteFromFile("SPRITES/ENEMIGOS/enemigo2_1_2x.png");
         *((mgr->templates+1)->sprite+1) = esat::SpriteFromFile("SPRITES/ENEMIGOS/enemigo2_2_2x.png");
@@ -121,7 +120,9 @@ namespace ENE{
 
         for(int i=0;i<KTypeCount;i++){
             (mgr->templates+i)->width = esat::SpriteWidth(*((mgr->templates+i)->sprite));
+            printf("Width: %d\n", (mgr->templates+i)->width);
             (mgr->templates+i)->height = esat::SpriteHeight(*((mgr->templates+i)->sprite));
+            printf("Height: %d\n", (mgr->templates+i)->height);
         }
 
         mgr->pool_size = pool_capacity;
