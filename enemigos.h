@@ -53,6 +53,7 @@ namespace ENE{
         ColorType Color;
         int count;
         bool active;
+        bool iscolliding;
         COL::colision col;
     };
 
@@ -176,7 +177,7 @@ namespace ENE{
 
             case KDarts:
                 if(rand()%2 == 1){
-                    e->speed={speedX,0.3}; 
+                    e->speed={speedX,1}; 
                 }else{
                     e->speed={speedX,0};   
                 }
@@ -213,6 +214,7 @@ namespace ENE{
         for(int i=0;i<mgr->pool_size && !found;i++){
             if(!(mgr->pool+i)->active){
                 (mgr->pool+i)->active = true;
+                (mgr->pool+i)->iscolliding = false;
                 (mgr->pool+i)->type = type;
                 (mgr->pool+i)->position = {x,y};
                 SpeedEnemies((mgr->pool+i));
@@ -225,10 +227,7 @@ namespace ENE{
     
     void EnemiesAI(Enemy *e, COL::colision ecol, EnemyManager *mgr){
         if(e->type == KMeteorites || e->type == KDarts){
-            if(e->type == KMeteorites){
-
-            }
-            if (COL::WindowsColision(ecol,COL::down,0)){
+            if (COL::WindowsColision(ecol,COL::down,-16)){
                 e->active=false;
                 ExplodeAt(e->position.x,e->position.y, e->Color);
                 if(e->type == KMeteorites){
@@ -243,12 +242,12 @@ namespace ENE{
         else if(e->type == KFurballs || e->type == KBubbles || e->type == KFlower){
             if (COL::WindowsColision(ecol,COL::right,100)){e->position.x=-32;}
             if (COL::WindowsColision(ecol,COL::left,100)){e->position.x=(256*2)+32;}
-            if (COL::WindowsColision(ecol,COL::top,0) || COL::WindowsColision(ecol,COL::down,0)){e->speed.y *= -1;}
+            if (COL::WindowsColision(ecol,COL::top,0) || COL::WindowsColision(ecol,COL::down,-16)){e->speed.y *= -1;}
         }
         else if(e->type == KAlien){
             if (COL::WindowsColision(ecol,COL::right,100)){e->position.x=-32;}
             if (COL::WindowsColision(ecol,COL::left,100)){e->position.x=(256*2)+32;}
-            if (e->position.y < rand()%(192*2)-80 && e->speed.y < 0 || COL::WindowsColision(ecol,COL::down,0)){e->speed.y *= -1;}
+            if (e->position.y < rand()%(192*2)-80 && e->speed.y < 0 || COL::WindowsColision(ecol,COL::down,-16)){e->speed.y *= -1;}
         }
         else if(e->type == KUfo) {
             if (e->speed.y < 0) {
@@ -276,7 +275,7 @@ namespace ENE{
             else {
                 e->speed.x = 4.0f;
             }
-            if (COL::WindowsColision(ecol, COL::down, 0) || COL::WindowsColision(ecol, COL::top, 0) || COL::WindowsColision(ecol,COL::right,0)) {
+            if (COL::WindowsColision(ecol, COL::down, -16) || COL::WindowsColision(ecol, COL::top, 0) || COL::WindowsColision(ecol,COL::right,0)) {
                 e->active = false;
                 ExplodeAt(e->position.x, e->position.y, e->Color);
                 SpawnEnemy(mgr, KJets, 0, rand() % 360);

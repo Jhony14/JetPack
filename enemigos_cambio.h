@@ -16,8 +16,8 @@
 #include "colisiones.h"
 #include "jugador.cc"
 
-#ifndef ENEMIGOS_H
-#define ENEMIGOS_H
+#ifndef ENEMIGOSC_H
+#define ENEMIGOSC_H
 
 namespace ENE{
 
