@@ -44,7 +44,7 @@ void InitiateFrame()
 void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **punteroBalas, Sprites **spritesItems, Jugador *player,
                 ItemDrop *gasofa, ItemDrop *itemdrop, esat::SpriteHandle **platform_sprite, TPlatform **g_platforms,
                 esat::SpriteHandle **loading_sprite, TGame *game, esat::SpriteHandle* sprite_lives, Sprites** spritesNave, Nave* nave, 
-                ENE::EnemyManager *mgr, ENE::VisualEffect** g_fx_pool, esat::SpriteHandle** g_fx_sprites)
+                ENE::EnemyManager *mgr, ENE::VisualEffect** g_fx_pool, esat::SpriteHandle** g_fx_sprites, ParteNave **punteroParteNave)
 {
     esat::WindowInit(kScreenWidth, kScreenHeight);
     esat::WindowSetMouseVisibility(true);
@@ -57,6 +57,7 @@ void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **pu
     *punteroBalas = (Bala *)malloc(20 * sizeof(Bala));
     *spritesItems = (Sprites *)malloc(6 * sizeof(Sprites));
     *spritesNave = InstanciarSpritesNave(16);
+    *punteroParteNave = (ParteNave *)malloc(sizeof(ParteNave) * 3);
 
     // SPRITES
     InstanciarSpritesColores(*spritesColores);
@@ -76,6 +77,7 @@ void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **pu
     InitGameVariables(game);
     InitLivesSprite(sprite_lives);// Fuente
     LoadFonts();
+    InstanciarPartesDeLaNave(*punteroParteNave);
 
     //enemigos
     ENE::InitManager(mgr,10);
@@ -130,10 +132,10 @@ void TestValues(Jugador *player){
   player->puntos++;
 }
 
-void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, bool moverRight, int *frame,
+void Update(Jugador *player, bool *ascender, Bala *punteroBalas, bool *moverLeft, bool *moverRight, int *frame,
             ItemDrop &gasofa, ItemDrop *itemdrop, Sprites *spritesItems, TPlatform* g_platforms, 
-            TGame* game, float* timer, float* menu_blink_timer, bool* menu_highlight_white, Nave* nave,
-            ENE::EnemyManager *mgr, int level)
+            TGame* game, float* timer, float* menu_blink_timer, bool* menu_highlight_white, Nave *nave,
+            ENE::EnemyManager *mgr, int level, ParteNave *punteroParteNave)
 {
     if(game->current_screen != TScreen::GAME_SCREEN)
         ScreenSelector(game, timer, menu_blink_timer, menu_highlight_white);
@@ -145,26 +147,30 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         
         // Pasar vidas y puntos a la interfaz
         UpdateInterface(&player->puntos, &player->vidas, &player->player_id, game);
-        TestValues(player); // @jhony: remove this
+        //TestValues(player); // @jhony: remove this
         
         // ! Colisiones
         if (player->muerto || !player->colisiona)
-          ResetPlayer_OnDead(player);
+          ResetPlayer_OnDead(player, ascender, moverLeft, moverRight);
 
+        //ActualizarColisionParteNave(*punteroNave);
         ActualizarColisionesItems(gasofa, *itemdrop, nave);
         LoopGasofa(*player, gasofa, nave, g_platforms);
         LoopPickItems(*player, itemdrop, spritesItems, *nave, g_platforms);
 
         
-        LoopMoverJugador(moverLeft, moverRight, player);
+        LoopMoverJugador(*moverLeft, *moverRight, player);
         bool isOnPlatform = !player->volando;
-        Ascender_Gravedad(player, ascender);
+        Ascender_Gravedad(player, *ascender);
         ColisionJugador(player); // Actualizar colider a player
         ColisionPlayerPlatforma(*player, g_platforms); // No subir porque da error
         AnimationDust(player, isOnPlatform);
         ColisionDisparos(punteroBalas, mgr);
         
+        //MoverParte(*punteroNave, nave);
         MoverNave(nave, player->config_colision, &player->muerto);
+        //ColisionPartesNaveJugador(*punteroNave, player);     // detecta colision entre parte y jugador     
+        //ColisionColocarPartes(nave, *punteroNave, player); // esto apila las partes
         if(level == 1){
             for(int i=0;i<3;i++){
                 ENE::SpawnEnemy(mgr,ENE::KMeteorites,0,rand()%350);
@@ -188,7 +194,7 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
 void DrawAll(Sprites *spritesColores, Sprites *spritesPersonaje, Bala *punteroBalas, Jugador player, int frame, 
             ItemDrop gasofa, Sprites *spritesItems, ItemDrop itemdrop, TPlatform* g_platforms, esat::SpriteHandle* platform_sprite,
             TGame game, esat::SpriteHandle* loading_sprite, int menu_selection_player, int menu_selection_control, int menu_highlight_white, esat::SpriteHandle sprite_vidas,
-            Nave* nave, Sprites* spritesNave, ENE::EnemyManager mgr, ENE::VisualEffect* g_fx_pool, esat::SpriteHandle* g_fx_sprites)
+            Nave* nave, Sprites* spritesNave, ENE::EnemyManager mgr, ENE::VisualEffect* g_fx_pool, esat::SpriteHandle* g_fx_sprites, ParteNave *punteroNave)
 {
     if(game.current_screen == TScreen::IMAGE)
       InitialImage(loading_sprite);
@@ -202,14 +208,16 @@ void DrawAll(Sprites *spritesColores, Sprites *spritesPersonaje, Bala *punteroBa
             DibujarColoresJugador(spritesColores, player, frame);
             DibujarJugador(spritesPersonaje, player, frame);
         }
-        if (!player.colisiona)
+        if (!player.colisiona && !player.muerto)
         {
             DibujarColoresJugador(spritesColores, player, 3);
             DibujarJugador(spritesPersonaje, player, frame);
         }
-        DibujarGasofa(gasofa, spritesItems, *nave);
         DibujarItems(itemdrop, spritesItems);
+        DibujarPartesNave(punteroNave, spritesNave);
         DibujarNave(nave, spritesNave);
+        DibujarGasofa(gasofa, spritesItems, *nave);
+        COL::ShowColision(player.config_colision.colision);
         ENE::DrawEnemies(mgr);
         ENE::DrawActiveVFX(g_fx_pool, g_fx_sprites);
     }
@@ -263,6 +271,7 @@ int esat::main(int argc, char **argv)
     bool moverLeft, moverRight, ascender;
     Sprites *spritesColores = nullptr, *spritesPersonaje = nullptr, *spritesItems = nullptr, *SpritesNaves = nullptr;
     Bala *punteroBalas = nullptr;
+    ParteNave *parteNave = nullptr;
     Jugador player;
     ItemDrop gasofa;
     COL::object prueba_nave;
@@ -290,7 +299,7 @@ int esat::main(int argc, char **argv)
     bool menu_highlight_white = true;
 
     InitiateAll(&spritesColores, &spritesPersonaje, &punteroBalas, &spritesItems, &player, &gasofa, &itemdrop, &platform_sprite, &g_platforms, &loading_sprite, &game,
-                &sprite_lives, &SpritesNaves, &nave, &enemies, &g_fx_pool, &g_fx_sprites);
+                &sprite_lives, &SpritesNaves, &nave, &enemies, &g_fx_pool, &g_fx_sprites, &parteNave);
 
     // Main game loop
     while (esat::WindowIsOpened() && !esat::IsSpecialKeyDown(esat::kSpecialKey_Escape))
@@ -298,10 +307,10 @@ int esat::main(int argc, char **argv)
         InitiateFrame();
 
         GetInput(&moverLeft, &moverRight, &ascender, punteroBalas, player, &game, &menu_selection_player, &menu_selection_control);
-        Update(&player, ascender, punteroBalas, moverLeft, moverRight, &frame, gasofa, &itemdrop, spritesItems, g_platforms, &game, &timer,
-                &menu_blink_timer, &menu_highlight_white, &nave, &enemies, level);
+        Update(&player, &ascender, punteroBalas, &moverLeft, &moverRight, &frame, gasofa, &itemdrop, spritesItems, g_platforms, &game, &timer,
+                &menu_blink_timer, &menu_highlight_white, &nave, &enemies, level, parteNave);
         DrawAll(spritesColores, spritesPersonaje, punteroBalas, player, frame, gasofa, spritesItems, itemdrop, g_platforms, platform_sprite, 
-                game, loading_sprite, menu_selection_player, menu_selection_control, menu_highlight_white, sprite_lives, &nave, SpritesNaves, enemies, g_fx_pool, g_fx_sprites);
+                game, loading_sprite, menu_selection_player, menu_selection_control, menu_highlight_white, sprite_lives, &nave, SpritesNaves, enemies, g_fx_pool, g_fx_sprites, parteNave);
 
         FinishFrame();
     }

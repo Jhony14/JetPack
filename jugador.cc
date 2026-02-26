@@ -1,19 +1,5 @@
-// ESAT Libraries
-#include <esat/window.h>
-#include <esat/draw.h>
-#include <esat/sprite.h>
-#include <esat/input.h>
-#include <esat/time.h>
-
-// Standard libraries
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <math.h>
 #include "interface.cc"
 #include "audio.cc"
-#include <esat_extra/soloud/soloud.h>
 
 /*struct Sprites
 {
@@ -253,7 +239,6 @@ void ActualizarDisparos(Bala *bala, Jugador player)
     if (bala[i].activa)
     {
       bala[i].pos.x += bala[i].dir.x * bala[i].speed * delta_time;
-      //! si sale de pantalla (funcion carlos)
       bala[i].config_bala.position.x = bala[i].pos.x;
       bala[i].config_bala.position.y = bala[i].pos.y;
       bala[i].config_bala.colision = CreateColision(bala[i].config_bala);
@@ -272,20 +257,6 @@ void ActualizarDisparos(Bala *bala, Jugador player)
   }
 }
 
-// void ColisionDisparos(Bala *bala, COL::object objeto)
-// {
-//   for (int i = 0; i < 20; i++)
-//   {
-//     if (bala[i].activa)
-//     {
-//       if (CheckColision(bala[i].config_bala.colision, objeto.colision))
-//       {
-//         bala[i].activa = false;
-//       }
-//     }
-//   }
-// }
-
 void ColisionDisparos(Bala *bala, ENE::EnemyManager *punteroEnemy)
 {
   for (int i = 0; i < 20; i++)
@@ -300,8 +271,12 @@ void ColisionDisparos(Bala *bala, ENE::EnemyManager *punteroEnemy)
         {
           bala[i].activa = false;
           enemy->active = false;
-
           ENE::ExplodeAt(enemy->position.x, enemy->position.y, enemy->Color);
+          if (enemy->type == ENE::KJets) {
+            ENE::SpawnEnemy(punteroEnemy, enemy->type, 0, rand() % 320);
+          } else {
+            ENE::SpawnEnemy(punteroEnemy ,enemy->type, -32, rand() % 320);
+          }
           printf("colision ENEMIGO !! \n");
         }
       }
@@ -317,24 +292,27 @@ void SwitchPlayer(Jugador *player){
 }
 
 void EnemiesCollision(ENE::EnemyManager* mgr, Jugador *player, int frame, TGame *game){
-  for(int i = 0; i < mgr->pool_size; ++i){
-    ENE::Enemy *e = mgr->pool+i;
-    if(e->active){
-      bool collision_now = COL::CheckColision(e->col,player->config_colision.colision);
-      if(collision_now && !e->iscolliding){
-        player->vidas--;
-        ENE::ExplodeAt(e->position.x, e->position.y, e->Color);
-        ENE::ExplodeAt(player->pos.x, player->pos.y, static_cast<ENE::ColorType>(frame));
-        player->muerto = true;
-        player->colisiona = false;
-
-        SwitchPlayer(player);
-        if(player->vidas <= 0){
-          DeletePlayerDataFiles();
-          game->current_screen = TScreen::MAIN_MENU;
+  if (!player->muerto && player->colisiona)
+  {
+    for(int i = 0; i < mgr->pool_size; ++i){
+      ENE::Enemy *e = mgr->pool+i;
+      if(e->active){
+        bool collision_now = COL::CheckColision(e->col,player->config_colision.colision);
+        if(collision_now && !e->iscolliding){
+          // player->vidas--;
+          ENE::ExplodeAt(e->position.x, e->position.y, e->Color);
+          ENE::ExplodeAt(player->pos.x, player->pos.y, static_cast<ENE::ColorType>(frame));
+          player->muerto = true;
+          player->colisiona = false;
+  
+          SwitchPlayer(player);
+          if(player->vidas <= 0){
+            DeletePlayerDataFiles();
+            game->current_screen = TScreen::MAIN_MENU;
+          }
         }
+        e->iscolliding = collision_now;
       }
-      e->iscolliding = collision_now;
     }
   }
 }
@@ -389,7 +367,7 @@ void DibujarDisparos(Bala *bala)
 
       // punta
       esat::DrawSetFillColor(255, 255, 255);
-
+    
       float punta[8] = {
           punta_x, punta_y,
           punta_x - dir * 25.0f, punta_y,
@@ -762,22 +740,29 @@ void ColisionPlayerPlatforma(Jugador &player, TPlatform *g_platforms)
     }
   }
 }
+
+void CleanInputsOnDead( bool *ascender, bool *izquierda, bool *derecha)
+{
+  *ascender = false;
+  *izquierda = false;
+  *derecha = false;
+}
+
 // if(muerto == true || colisiona == false)
-void ResetPlayer_OnDead(Jugador *player)
+void ResetPlayer_OnDead(Jugador *player, bool *ascender, bool *izquierda, bool *derecha)
 {
   static float timer = 0.0f;
   static float timer_invulnerable = 0.0f;
-
-  if (player->muerto && timer > player->tiempo_aparicion)
-    timer = 0.0f;
+  // if (player->muerto && timer > player->tiempo_aparicion)
+  //   timer = 0.0f;
 
   if (timer <= player->tiempo_aparicion)
   {
-    if (!timer)
+    if (timer == 0.0f)
     {
+      CleanInputsOnDead(ascender, izquierda, derecha);
       player->pos.x = kScreenWidth / 2;
       player->pos.y = kScreenHeight - player->spriteHeight - 16;
-      player->muerto = false;
     }
 
     timer += delta_time;
@@ -785,6 +770,7 @@ void ResetPlayer_OnDead(Jugador *player)
   else
   {
     player->colisiona = false;
+    player->muerto = false;
     timer_invulnerable += delta_time; // 0 1 2 3 4 5
     // no detectar colisiones con enemigos
     if (timer_invulnerable >= player->tiempo_invulnerable)

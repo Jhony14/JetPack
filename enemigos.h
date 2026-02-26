@@ -70,9 +70,6 @@ namespace ENE{
         ColorType color;
         bool active;
     };
-    
-    VisualEffect *g_fx_pool = nullptr;
-    esat::SpriteHandle *g_fx_sprites = nullptr;
 
     // Solucion temporal para que funcione el InitVFXSystem
     // Porque se envian punteros si en este script se usan variables globales?
@@ -85,9 +82,6 @@ namespace ENE{
         *((*g_fx_sprites_pointer)+1) = esat::SpriteFromFile("SPRITES/NAVE/nube_polvo_2_2x.png");
         *((*g_fx_sprites_pointer)+2) = esat::SpriteFromFile("SPRITES/NAVE/nube_polvo_3_2x.png");
         for(int i=0;i<20;i++) ((*g_fx_pool_pointer)+i)->active = false;
-
-        g_fx_pool = *g_fx_pool_pointer;
-        g_fx_sprites = *g_fx_sprites_pointer;
     }
 
     void InitManager(EnemyManager *mgr, int pool_capacity){
@@ -152,8 +146,8 @@ namespace ENE{
 
     void SpeedEnemies(Enemy *e){
 
-        float speedX = ((float)rand() / (float)RAND_MAX) + 0.5f;
-        float speedY = ((float)rand() / (float)RAND_MAX) + 0.5f;
+        float speedX = 50;
+        float speedY = 50;
 
         if(rand() % 2 == 0) speedX *= -1;
         if(rand() % 2 == 0) speedY *= -1;
@@ -288,6 +282,9 @@ namespace ENE{
     void BGcolor(COL::colision col, ColorType type){
         float *P = (float*)malloc(10*sizeof(float));
         switch(type){
+            case yellow:
+            esat::DrawSetFillColor(255,255,0,255);
+                break;
             case red:
             esat::DrawSetFillColor(255,0,0,255);
                 break;

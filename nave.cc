@@ -1,18 +1,3 @@
-// ESAT Libraries
-#include <esat/window.h>
-#include <esat/draw.h>
-#include <esat/sprite.h>
-#include <esat/input.h>
-#include <esat/time.h>
-
-// Standard libraries
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <math.h>
-#include "colisiones.h"
-
 /*
 // Windows dimensions with default values
 const int KWindow_Width = 800;
@@ -50,6 +35,15 @@ Sprites *InstanciarSpritesNave(int numSprite)
   return (Sprites *)malloc(sizeof(Sprites) * numSprite);
 }
 
+struct ParteNave
+{
+    esat::Vec2 pos;
+    COL::object parteNaveConfig;
+    bool colocada = false;
+    bool recogido = false;
+    bool colisionNave = false;
+};
+
 void InitSpriteNave(Sprites *punteroSprites)
 {
   punteroSprites[0].sprite = esat::SpriteFromFile("./SPRITES/NAVE/cabeza_nave_1_2x.png");
@@ -69,6 +63,133 @@ void InitSpriteNave(Sprites *punteroSprites)
   punteroSprites[14].sprite = esat::SpriteFromFile("./SPRITES/NAVE/explosion_1_2x.png");
   punteroSprites[15].sprite = esat::SpriteFromFile("./SPRITES/NAVE/explosion_2_2x.png");
 }
+
+/////////////////////// Partes Nave ///////////////////////
+
+void InstanciarPartesDeLaNave(ParteNave *parteNave)
+{
+    int measure = 32;
+
+    ParteNave cabeza;
+    cabeza.parteNaveConfig.position.x = 105;
+    cabeza.parteNaveConfig.position.y = 150 - 32;
+    cabeza.parteNaveConfig.height = measure;
+    cabeza.parteNaveConfig.width = measure;
+    cabeza.parteNaveConfig.colision = COL::CreateColision(cabeza.parteNaveConfig);
+    cabeza.recogido = false;
+    parteNave[0] = cabeza;
+
+    ParteNave cuerpo;
+    cuerpo.parteNaveConfig.position.x = 256;
+    cuerpo.parteNaveConfig.position.y = 180 - 32;
+    cuerpo.parteNaveConfig.height = measure;
+    cuerpo.parteNaveConfig.width = measure;
+    cuerpo.parteNaveConfig.colision = COL::CreateColision(cuerpo.parteNaveConfig);
+    cuerpo.recogido = false;
+    parteNave[1] = cuerpo;
+
+    ParteNave cola;
+    //cola.parteNaveConfig.position.x = 325;
+    cola.parteNaveConfig.position.x = kScreenWidth - 170;
+    cola.parteNaveConfig.position.y = (kScreenHeight - 16) - 32;
+    cola.parteNaveConfig.height = kScreenHeight;
+    cola.parteNaveConfig.width = measure;
+    cola.recogido = true;
+    parteNave[2] = cola;
+}
+
+void ActualizarColisionParteNave(ParteNave *parteNave)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        parteNave[i].parteNaveConfig.colision = COL::CreateColision(parteNave[i].parteNaveConfig);
+    }
+}
+
+void MoverParte(ParteNave *parteNave, Nave *nave){
+    for(int i=0; i<2; i++){ 
+        if(parteNave[i].colisionNave){
+            parteNave[i].parteNaveConfig.position.x = nave->pos.x;
+            parteNave[i].parteNaveConfig.position.y += 2;
+            if(parteNave[i].parteNaveConfig.position.y >= nave->pos.y + (i*32)){
+                parteNave[i].parteNaveConfig.position.y = nave->pos.y + ((i)*32);
+                parteNave[i].colisionNave = false;
+            }
+        }
+    }
+}
+
+// TO-DO mati 
+/*
+void ColisionColocarPartes(Nave *nave, ParteNave &parte_nave, Jugador *player)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if ((COL::CheckColision(nave->nave_config.colision, parte_nave[i].parteNaveConfig.colision)))
+        {
+            parteNave[i].colisionNave = true;
+            parteNave[i].recogido = false;
+            
+            if(i == 0){
+                parteNave[0].colocada = true;
+            }
+        }
+    }
+}
+
+void ActualizarPosParteNave(ParteNave &parteNave, Jugador *player)
+{
+
+    for (int i = 0; i < 2; i++)
+    {
+        if (parteNave[i].recogido && !parteNave[i].colisionNave)
+        {
+            parteNave[i].parteNaveConfig.position.x = player->pos.x + 32;
+            parteNave[i].parteNaveConfig.position.y = player->pos.y;
+        }
+    }
+}
+
+void ColisionPartesNaveJugador(ParteNave &parteNave, Jugador *player)
+{
+    if (COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision) && !parteNave[1].colocada)
+    {
+        parteNave[1].recogido = true;
+        parteNave[1].colocada = true;
+        //printf("Colision objeto 1\n");
+    }
+    if (parteNave[1].colocada)
+    {
+        if (COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision) && !parteNave[0].colocada)
+        {
+            parteNave[1].recogido = false;
+            parteNave[0].recogido = true;
+            //printf("Colision objeto 0\n");
+        }
+    }
+    ActualizarPosParteNave(parteNave, player);
+
+    COL::ShowColision(parteNave[0].parteNaveConfig.colision);
+    COL::ShowColision(parteNave[1].parteNaveConfig.colision);
+}
+*/
+
+void DibujarPartesNave(ParteNave *parteNave, Sprites *punteroSprites)
+{
+    int height = 32;
+
+    for (int i = 0; i < 3; i++)
+    {
+        esat::DrawSprite(punteroSprites[12].sprite, parteNave[i].parteNaveConfig.position.x, parteNave[i].parteNaveConfig.position.y);
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        esat::DrawSprite(punteroSprites[i].sprite, parteNave[i].parteNaveConfig.position.x, parteNave[i].parteNaveConfig.position.y);
+    }
+}
+
+/////////////////////// NAVE ///////////////////////
 
 void InstanciarNave(Nave *nave)
 {
