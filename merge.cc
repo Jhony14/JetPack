@@ -30,14 +30,14 @@ struct ParteNave
 {
     esat::Vec2 pos;
     COL::object parteNaveConfig;
-    bool recogido;
+    bool colocada = false;
+    bool recogido = false;
+    bool colisionNave = false;
 };
 
 // definicion funciones agregar luego
 
 ParteNave *parteNave = nullptr;
-
-bool primeraColocada = false;
 
 void ReservaMemoriaNave(ParteNave **parteNave)
 {
@@ -91,6 +91,8 @@ void DibujarPartesNave(ParteNave *parteNave, Sprites *punteroSprites)
     }
 }
 
+//
+
 void ActualizarColisionParteNave(ParteNave *parteNave)
 {
     for (int i = 0; i < 2; i++)
@@ -98,19 +100,17 @@ void ActualizarColisionParteNave(ParteNave *parteNave)
         parteNave[i].parteNaveConfig.colision = COL::CreateColision(parteNave[i].parteNaveConfig);
     }
 }
-// Colision de parte con nave.
-// Esta funcion necesitarás ajustarla un poco, te recomiendo que sigas por aqui
 
-void ActualizarColocarNave(Nave *nave, ParteNave *parteNave){
-    for(int i=0; i<2; i++){
-        if(!parteNave[i].recogido){
+void MoverParte(ParteNave *parteNave, Nave *nave){
+    for(int i=0; i<2; i++){ 
+        if(parteNave[i].colisionNave){
             parteNave[i].parteNaveConfig.position.x = nave->pos.x;
-            parteNave[i].parteNaveConfig.position.y = nave->pos.y + ((i)*32);
-            // while(parteNave[i].parteNaveConfig.position.y != nave->pos.y + ((i)*32)){
-            //     parteNave[i].parteNaveConfig.position.y  += 1;
-            // }
+            parteNave[i].parteNaveConfig.position.y += 2;
+            if(parteNave[i].parteNaveConfig.position.y >= nave->pos.y + (i*32)){
+                parteNave[i].parteNaveConfig.position.y = nave->pos.y + ((i)*32);
+                parteNave[i].colisionNave = false;
+            }
         }
-
     }
 }
 
@@ -118,10 +118,14 @@ void ColisionColocarPartes(Nave *nave, ParteNave *parte_nave, Jugador *player)
 {
     for (int i = 0; i < 2; i++)
     {
-        if ((COL::CheckColision(nave->nave_config.colision, parte_nave[i].parteNaveConfig.colision)) /*&& parte_nave[i].recogido*/)
+        if ((COL::CheckColision(nave->nave_config.colision, parte_nave[i].parteNaveConfig.colision)))
         {
-            GravedadItem(parteNave[i].parteNaveConfig);
-            //ActualizarColocarNave(nave, parteNave);
+            parteNave[i].colisionNave = true;
+            parteNave[i].recogido = false;
+            
+            if(i == 0){
+                parteNave[0].colocada = true;
+            }
         }
     }
 
@@ -132,7 +136,7 @@ void ActualizarPosParteNave(ParteNave *parteNave, Jugador *player)
 
     for (int i = 0; i < 2; i++)
     {
-        if (parteNave[i].recogido)
+        if (parteNave[i].recogido && !parteNave[i].colisionNave)
         {
             parteNave[i].parteNaveConfig.position.x = player->pos.x + 32;
             parteNave[i].parteNaveConfig.position.y = player->pos.y;
@@ -140,21 +144,21 @@ void ActualizarPosParteNave(ParteNave *parteNave, Jugador *player)
     }
 }
 
-void ColisionPartesNaveJugador(ParteNave *parteNave, Jugador *player, bool &primera_colocada)
+void ColisionPartesNaveJugador(ParteNave *parteNave, Jugador *player)
 {
-    if (COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision) && !primera_colocada)
+    if (COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision) && !parteNave[1].colocada)
     {
         parteNave[1].recogido = true;
-        primera_colocada = true;
-        printf("Colision objeto 1\n");
+        parteNave[1].colocada = true;
+        //printf("Colision objeto 1\n");
     }
-    if (primera_colocada)
+    if (parteNave[1].colocada)
     {
-        if (COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision))
+        if (COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision) && !parteNave[0].colocada)
         {
             parteNave[1].recogido = false;
             parteNave[0].recogido = true;
-            printf("Colision objeto 0\n");
+            //printf("Colision objeto 0\n");
         }
     }
     ActualizarPosParteNave(parteNave, player);
@@ -162,6 +166,8 @@ void ColisionPartesNaveJugador(ParteNave *parteNave, Jugador *player, bool &prim
     COL::ShowColision(parteNave[0].parteNaveConfig.colision);
     COL::ShowColision(parteNave[1].parteNaveConfig.colision);
 }
+
+//
 
 void InitiateFrame()
 {
@@ -269,7 +275,7 @@ void SwitchPlayer(Jugador *player)
 {
     Jugador tmp;
     tmp = *player;
-    printf("[DEBUG] Switching player to %d\n", player->player_id == 1 ? 2 : 1);
+    //printf("[DEBUG] Switching player to %d\n", player->player_id == 1 ? 2 : 1);
     LoadPlayerDataFromFile(player, player->player_id == 1 ? 2 : 1);
     SavePlayerDataToFile(&tmp, player);
 }
@@ -294,7 +300,7 @@ void TestValues(Jugador *player)
 
 void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, bool moverRight, int *frame,
             COL::object &gasofa, ItemDrop *itemdrop, Sprites *spritesItems, TPlatform *g_platforms,
-            TGame *game, float *timer, float *menu_blink_timer, bool *menu_highlight_white, Nave *nave, bool *primera_colocada)
+            TGame *game, float *timer, float *menu_blink_timer, bool *menu_highlight_white, Nave *nave)
 {
     if (game->current_screen != TScreen::GAME_SCREEN)
         ScreenSelector(game, timer, menu_blink_timer, menu_highlight_white);
@@ -329,13 +335,15 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
 
         //
         //
+        MoverParte(parteNave, nave);
+
         ActualizarColisionParteNave(parteNave);
 
-        ColisionPartesNaveJugador(parteNave, player, *primera_colocada);
-        printf("parte nave pos x [%f], pos y[%f]", parteNave->parteNaveConfig.position.x, parteNave->parteNaveConfig.position.y);
+        ColisionPartesNaveJugador(parteNave, player);
+        //printf("parte nave pos x [%f], pos y[%f]", parteNave->parteNaveConfig.position.x, parteNave->parteNaveConfig.position.y);
 
         ColisionColocarPartes(nave, parteNave, player);
-        printf("parte nave pos x [%f], pos y[%f]", parteNave->parteNaveConfig.position.x, parteNave->parteNaveConfig.position.y);
+        //printf("parte nave pos x [%f], pos y[%f]", parteNave->parteNaveConfig.position.x, parteNave->parteNaveConfig.position.y);
 
     }
 }
@@ -454,7 +462,7 @@ int esat::main(int argc, char **argv)
         TestMousePosition();
         GetInput(&moverLeft, &moverRight, &ascender, punteroBalas, player, &game, &menu_selection_player, &menu_selection_control);
         Update(&player, ascender, punteroBalas, moverLeft, moverRight, &frame, gasofa, &itemdrop, spritesItems, g_platforms, &game, &timer,
-               &menu_blink_timer, &menu_highlight_white, &nave, &primeraColocada);
+               &menu_blink_timer, &menu_highlight_white, &nave);
         DrawAll(spritesColores, spritesPersonaje, punteroBalas, player, frame, gasofa, spritesItems, itemdrop, g_platforms, platform_sprite,
                 game, loading_sprite, menu_selection_player, menu_selection_control, menu_highlight_white, sprite_lives, &nave, SpritesNaves);
 
