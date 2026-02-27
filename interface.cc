@@ -21,7 +21,8 @@ extern const int kScreenHeight;
 enum TScreen {
   IMAGE,
   MAIN_MENU,
-  GAME_SCREEN
+  GAME_SCREEN,
+  GAME_OVER
 };
 
 struct TPlatform {
@@ -321,6 +322,13 @@ void InitialImage(esat::SpriteHandle* loading_sprite){
   esat::DrawSprite(*(loading_sprite + 0), 0, 0);
 }
 
+// TODO(@jhony): Falta añadir que jugador ha perdido si es 2 player mode
+void GameOverScreen(TGame* game_data, double dt){
+  esat::DrawSetTextSize(42);
+  esat::DrawSetFillColor(255, 255, 255, 255);
+  esat::DrawText(100.0f, 170.0f, "GAME OVER");
+}
+
 // function to select the screen to show
 void ScreenSelector(TGame* game, float* timer, float* menu_blink_timer, bool* menu_highlight_white) {
   switch ((*game).current_screen) {
@@ -335,6 +343,18 @@ void ScreenSelector(TGame* game, float* timer, float* menu_blink_timer, bool* me
         *menu_highlight_white = !(*menu_highlight_white);
       }
     }
+      break;
+    case GAME_OVER: {
+      static float game_over_timer = 0.0f;
+      game_over_timer += delta_time;
+      if (game_over_timer >= 3.0f) {
+        (*game).current_screen = MAIN_MENU;
+        game_over_timer = 0.0f;
+      }
+    }
+      break;
+    default:
+      break;
   }
 }
 
