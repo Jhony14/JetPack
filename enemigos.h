@@ -147,8 +147,8 @@ namespace ENE{
 
     void SpeedEnemies(Enemy *e){
 
-        float speedX = 50;
-        float speedY = 50;
+        float speedX = rand() % 50 + 30.0f;
+        float speedY = rand() % 50 + 30.0f;
 
         if(rand() % 2 == 0) speedX *= -1;
         if(rand() % 2 == 0) speedY *= -1;
