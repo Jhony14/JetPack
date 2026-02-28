@@ -156,6 +156,7 @@ void DrawHeader(TGame game_data, esat::SpriteHandle sprite_lives, int lives = 0)
   char *hi_score = (char *)malloc(7 * sizeof(char));
   char *score_2up = (char *)malloc(7 * sizeof(char));
   char *lives_text = (char *)malloc(2 * sizeof(char));
+
   itoa(game_data.score_p1 + 1000000, score_1up, 10);
   itoa(game_data.hi_socore + 1000000, hi_score, 10);
   itoa(game_data.score_p2 + 1000000, score_2up, 10);
@@ -212,6 +213,7 @@ void DrawHeader(TGame game_data, esat::SpriteHandle sprite_lives, int lives = 0)
   free(score_1up);
   free(hi_score);
   free(score_2up);
+  free(lives_text);
 }
 
 void DrawHighlightRect(float x, float y, float w, float h, bool white)
