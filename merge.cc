@@ -91,7 +91,7 @@ void InitiateAll(Sprites **spritesColores, Sprites **spritesPersonaje, Bala **pu
 
     // Load game data and player data if exists
     LoadGameDataFromFile(game);
-    if (LoadPlayerDataFromFile(player))
+    if (LoadPlayerDataFromFile(player, game->current_player_id))
     {
       player->isActive = true; // sirve de algo??
     }
@@ -124,8 +124,10 @@ void GetInput(bool *moverLeft, bool *moverRight, bool *ascender, Bala *punteroBa
         if (esat::IsKeyPressed('5'))
         {
             InstanciarPlayer(player);
+            game->current_player_id = 1;
             if (*menu_selection_player == 1)
             {
+                game->num_players = 2;
                 // Save player 2 data
                 Jugador player2;
                 InstanciarPlayer(&player2);
@@ -137,6 +139,7 @@ void GetInput(bool *moverLeft, bool *moverRight, bool *ascender, Bala *punteroBa
             }
             else
             {
+                game->num_players = 1;
                 SavePlayerDataToFile(player);
             }
             game->current_screen = TScreen::GAME_SCREEN;
@@ -366,7 +369,22 @@ int esat::main(int argc, char **argv)
     // Save hi-score always when game is closed
     SaveHiScoreToFile(game.hi_socore);
     if(game.current_screen == TScreen::GAME_SCREEN){
-      SavePlayerDataToFile(&player);
+      if (game.num_players == 2)
+      {
+        Jugador other_player;
+        int other_id = (game.current_player_id == 1) ? 2 : 1;
+        if (LoadPlayerDataFromFile(&other_player, other_id))
+        {
+          if (game.current_player_id == 1)
+            SavePlayerDataToFile(&player, &other_player);
+          else
+            SavePlayerDataToFile(&other_player, &player);
+        }
+        else
+          SavePlayerDataToFile(&player);
+      }
+      else
+        SavePlayerDataToFile(&player);
       SaveGameDataToFile(&game);
     }else{
       DeleteGameDataFiles();

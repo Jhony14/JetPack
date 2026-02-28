@@ -25,6 +25,7 @@ struct TGame
     TScreen current_screen;
     unsigned char current_lives;
     unsigned char current_player_id;
+    unsigned char num_players;
     int hi_socore;
     int score_p1; // actual hi-score for player1
     int score_p2; // actual hi-score for player2

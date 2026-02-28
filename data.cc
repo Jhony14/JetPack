@@ -63,6 +63,8 @@ void LoadGameDataFromFile(TGame *game){
     while (fread(&tmp, sizeof(TGame), 1, fichero) != 0){
       *game = tmp;
       game->label_timer_blink = 0.0f;
+      if (game->num_players != 1 && game->num_players != 2)
+        game->num_players = 1;
     }
     fclose(fichero);
   }
