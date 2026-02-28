@@ -1,10 +1,19 @@
-#include "interface.cc"
-#include "audio.cc"
+#include "jugador.h"
+#include "nave.h"
+#include "interface.h"
+#include "audio.h"
+#include "enemigos.h"
 
 /*struct Sprites
 {
   esat::SpriteHandle sprite;
-}*/
+  }*/
+enum Direction
+{
+  UP,
+  DOWN,
+  STATIC,
+};
 
 struct Jugador
 {
@@ -51,7 +60,7 @@ struct ItemDrop
   bool recogido;
 };
 
-#include "data.cc"
+#include "data.h"
 
 //! LAS FUNCIONES DE MALLOC FUERA
 // ________________________________
@@ -171,7 +180,7 @@ void CrearDisparos(Bala *bala, Jugador player)
   if (esat::IsSpecialKeyDown(esat::kSpecialKey_Space))
   {
     bool inactive_bullet_found = false;
-    PlayAudio(shoot);
+    // PlayAudio(shoot);
     for (int i = 0; i < 20 && !inactive_bullet_found; i++)
     {
       if (!bala[i].activa)
@@ -257,13 +266,13 @@ void ActualizarDisparos(Bala *bala, Jugador player)
   }
 }
 
-void ColisionDisparos(Bala *bala, ENE::EnemyManager *punteroEnemy, ENE::VisualEffect* g_fx_pool_pointer, esat::SpriteHandle* g_fx_sprites_pointer)
+void ColisionDisparos(Bala *bala, ENE::EnemyManager *punteroEnemy, ENE::VisualEffect *g_fx_pool_pointer, esat::SpriteHandle *g_fx_sprites_pointer)
 {
   for (int i = 0; i < 20; i++)
   {
     for (int j = 0; j < punteroEnemy->pool_size; j++)
     {
-      ENE::Enemy* enemy = &punteroEnemy->pool[j];
+      ENE::Enemy *enemy = &punteroEnemy->pool[j];
 
       if (bala[i].activa && enemy->active)
       {
@@ -272,10 +281,13 @@ void ColisionDisparos(Bala *bala, ENE::EnemyManager *punteroEnemy, ENE::VisualEf
           bala[i].activa = false;
           enemy->active = false;
           ENE::ExplodeAt(enemy->position.x, enemy->position.y, enemy->Color, g_fx_pool_pointer, g_fx_sprites_pointer);
-          if (enemy->type == ENE::KJets) {
+          if (enemy->type == ENE::KJets)
+          {
             ENE::SpawnEnemy(punteroEnemy, enemy->type, 0, rand() % 320);
-          } else {
-            ENE::SpawnEnemy(punteroEnemy ,enemy->type, -32, rand() % 320);
+          }
+          else
+          {
+            ENE::SpawnEnemy(punteroEnemy, enemy->type, -32, rand() % 320);
           }
           printf("colision ENEMIGO !! \n");
         }
@@ -284,29 +296,35 @@ void ColisionDisparos(Bala *bala, ENE::EnemyManager *punteroEnemy, ENE::VisualEf
   }
 }
 
-void SwitchPlayer(Jugador *player){
+void SwitchPlayer(Jugador *player)
+{
   Jugador tmp;
   tmp = *player;
   LoadPlayerDataFromFile(player, player->player_id == 1 ? 2 : 1);
   SavePlayerDataToFile(&tmp, player);
 }
 
-void EnemiesCollision(ENE::EnemyManager* mgr, Jugador *player, int frame, TGame *game, ENE::VisualEffect* g_fx_pool_pointer, esat::SpriteHandle* g_fx_sprites_pointer){
+void EnemiesCollision(ENE::EnemyManager *mgr, Jugador *player, int frame, TGame *game, ENE::VisualEffect *g_fx_pool_pointer, esat::SpriteHandle *g_fx_sprites_pointer)
+{
   if (!player->muerto && player->colisiona)
   {
-    for(int i = 0; i < mgr->pool_size; ++i){
-      ENE::Enemy *e = mgr->pool+i;
-      if(e->active){
-        bool collision_now = COL::CheckColision(e->col,player->config_colision.colision);
-        if(collision_now && !e->iscolliding){
+    for (int i = 0; i < mgr->pool_size; ++i)
+    {
+      ENE::Enemy *e = mgr->pool + i;
+      if (e->active)
+      {
+        bool collision_now = COL::CheckColision(e->col, player->config_colision.colision);
+        if (collision_now && !e->iscolliding)
+        {
           // player->vidas--;
           ENE::ExplodeAt(e->position.x, e->position.y, e->Color, g_fx_pool_pointer, g_fx_sprites_pointer);
           ENE::ExplodeAt(player->pos.x, player->pos.y, static_cast<ENE::ColorType>(frame), g_fx_pool_pointer, g_fx_sprites_pointer);
           player->muerto = true;
           player->colisiona = false;
-  
+
           SwitchPlayer(player);
-          if(player->vidas <= 0){
+          if (player->vidas <= 0)
+          {
             DeletePlayerDataFiles();
             game->current_screen = TScreen::MAIN_MENU;
           }
@@ -367,7 +385,7 @@ void DibujarDisparos(Bala *bala)
 
       // punta
       esat::DrawSetFillColor(255, 255, 255);
-    
+
       float punta[8] = {
           punta_x, punta_y,
           punta_x - dir * 25.0f, punta_y,
@@ -523,7 +541,7 @@ void Ascender_Gravedad(Jugador *jugador, bool ascendiendo)
 void SpawnItem(COL::object &item, Nave nave)
 {
   const int hud_height = 50;
-  //Que solo spawnee en el espacio que hay a la derecha o a la izquierda de la nave, pero no encima
+  // Que solo spawnee en el espacio que hay a la derecha o a la izquierda de la nave, pero no encima
   float x = rand() % 2 ? rand() % (int)(kScreenWidth - item.width - (nave.pos.x + nave.nave_config.width)) + (nave.pos.x + nave.nave_config.width) : rand() % (int)(nave.pos.x - item.width);
   item.position.x = x;
   item.position.y = hud_height;
@@ -531,10 +549,11 @@ void SpawnItem(COL::object &item, Nave nave)
 
 void GravedadItem(COL::object &item)
 {
-  if(item.position.y < kScreenHeight){
+  if (item.position.y < kScreenHeight)
+  {
     const int terrain_height = 16, item_height = 32;
     float speed = 5.0f;
-    if(item.position.y + speed >= kScreenHeight - terrain_height - item_height)
+    if (item.position.y + speed >= kScreenHeight - terrain_height - item_height)
       item.position.y = kScreenHeight - terrain_height - item_height;
     else
       item.position.y += speed;
@@ -570,21 +589,26 @@ void SpawnGasofaConTimer(ItemDrop &gasofa, Nave nave)
   param player El objeto del jugador
   param gasofa El objeto de la gasolina
 */
-void MoveGasofa(Jugador &player, ItemDrop &gasofa, TPlatform* g_platforms){
-  if(player.tiene_gasofa)
+void MoveGasofa(Jugador &player, ItemDrop &gasofa, TPlatform *g_platforms)
+{
+  if (player.tiene_gasofa)
     UpdateGasofaPosition(player, gasofa);
-  else{
+  else
+  {
     bool colisionWithPlatform = false;
-    int nPlatform;for(int i = 0; i < 3; ++i)
+    int nPlatform;
+    for (int i = 0; i < 3; ++i)
     {
       TPlatform *p = g_platforms + i;
-      if(CheckColision(gasofa.item_config.colision, p->collision_platform.colision)){
+      if (CheckColision(gasofa.item_config.colision, p->collision_platform.colision))
+      {
         nPlatform = i;
         colisionWithPlatform = true;
       }
     }
-    if(colisionWithPlatform){
-      gasofa.item_config.colision.p2.y = g_platforms[nPlatform].collision_platform.colision.p1.y  + 1;
+    if (colisionWithPlatform)
+    {
+      gasofa.item_config.colision.p2.y = g_platforms[nPlatform].collision_platform.colision.p1.y + 1;
       gasofa.item_config.colision.p1.y = gasofa.item_config.colision.p2.y - gasofa.item_config.height;
     }
     else
@@ -595,27 +619,30 @@ void MoveGasofa(Jugador &player, ItemDrop &gasofa, TPlatform* g_platforms){
 /*Comprueba si el sprite de la gasolina está a la altura de la nave donde se debe sumar a su contador de gasolina
   param y_fuel La altura actual del sprite de la gasolina
   Devuelve True si ya está a la altura en la que debe sumarse*/
-bool IsGasofaOnAddingPosition(float y_fuel){
+bool IsGasofaOnAddingPosition(float y_fuel)
+{
   const int sprites_height = 16;
   const float gravity_velocity = 5.0f;
-  //Uso gravity_velocity como un offset por seguridad por si la Y nunca vale (kScreenHeight - sprites_height * 3)
+  // Uso gravity_velocity como un offset por seguridad por si la Y nunca vale (kScreenHeight - sprites_height * 3)
   return y_fuel >= kScreenHeight - sprites_height * 3 &&
-       y_fuel <= kScreenHeight - sprites_height * 3 + gravity_velocity;
+         y_fuel <= kScreenHeight - sprites_height * 3 + gravity_velocity;
 }
 
 /*Lógica que comprueba si la gasolina pasa por el punto de la nave donde la absorba, agrega gasolina al contador de gasolina del cohete
   y mueve el sprite fuera de la pantalla mientras pasa el tiempo de cooldown
   param gasofa El objeto de la gasolina
   param nave El objeto de la nave*/
-void AddFuelToRocket(ItemDrop &gasofa, Nave *nave){
-  if(IsGasofaOnAddingPosition(gasofa.item_config.position.y)){ 
+void AddFuelToRocket(ItemDrop &gasofa, Nave *nave)
+{
+  if (IsGasofaOnAddingPosition(gasofa.item_config.position.y))
+  {
     nave->fuelAmount++;
     gasofa.item_config.position.y = kScreenHeight;
     gasofa.recogido = false;
   }
 }
 
-void LoopGasofa(Jugador &player, ItemDrop &gasofa, Nave *nave, TPlatform* g_platforms)
+void LoopGasofa(Jugador &player, ItemDrop &gasofa, Nave *nave, TPlatform *g_platforms)
 {
   if (nave->direccion == Direction::STATIC)
   {
@@ -627,12 +654,15 @@ void LoopGasofa(Jugador &player, ItemDrop &gasofa, Nave *nave, TPlatform* g_plat
       player.puntos += 100;
     }
     if (player.tiene_gasofa)
-      if (COL::CheckColision(player.config_colision.colision, nave->nave_config.colision)){
+      if (COL::CheckColision(player.config_colision.colision, nave->nave_config.colision))
+      {
         player.tiene_gasofa = false;
         gasofa.item_config.position.x = nave->nave_config.colision.p1.x;
       }
-    if(gasofa.recogido == true && player.tiene_gasofa == false) AddFuelToRocket(gasofa, nave);
-    if(gasofa.item_config.position.y >= kScreenHeight) SpawnGasofaConTimer(gasofa, *nave);
+    if (gasofa.recogido == true && player.tiene_gasofa == false)
+      AddFuelToRocket(gasofa, nave);
+    if (gasofa.item_config.position.y >= kScreenHeight)
+      SpawnGasofaConTimer(gasofa, *nave);
   }
 }
 
@@ -643,7 +673,7 @@ void ActualizarColisionesItems(ItemDrop &gasofa, ItemDrop &item, Nave *nave)
   item.item_config.colision = COL::CreateColision(item.item_config);
 }
 
-void LoopPickItems(Jugador &player, ItemDrop *item, Sprites *sprites, Nave nave, TPlatform* g_platforms)
+void LoopPickItems(Jugador &player, ItemDrop *item, Sprites *sprites, Nave nave, TPlatform *g_platforms)
 {
   static float timer = 0.0f;
   if (!item->recogido)
@@ -651,16 +681,18 @@ void LoopPickItems(Jugador &player, ItemDrop *item, Sprites *sprites, Nave nave,
     bool colisionWithPlatform = false;
     int nPlatform;
     // detecta colision con plataformas y guarda en caso de ser Cierto
-    for(int i = 0; i < 3; ++i)
+    for (int i = 0; i < 3; ++i)
     {
       TPlatform *p = g_platforms + i;
-      if(CheckColision(item->item_config.colision, p->collision_platform.colision)){
+      if (CheckColision(item->item_config.colision, p->collision_platform.colision))
+      {
         nPlatform = i;
         colisionWithPlatform = true;
       }
     }
-    if(colisionWithPlatform){
-      item->item_config.colision.p2.y = g_platforms[nPlatform].collision_platform.colision.p1.y+1;
+    if (colisionWithPlatform)
+    {
+      item->item_config.colision.p2.y = g_platforms[nPlatform].collision_platform.colision.p1.y + 1;
       item->item_config.position.y = item->item_config.colision.p2.y - item->item_config.height;
     }
     else
@@ -693,13 +725,14 @@ void ColisionJugador(Jugador *player)
   player->config_colision.colision = COL::CreateColision(player->config_colision);
 }
 
-void AnimationDust(Jugador *player, bool isOnPlatform, ENE::VisualEffect* g_fx_pool_pointer, esat::SpriteHandle* g_fx_sprites_pointer)
+void AnimationDust(Jugador *player, bool isOnPlatform, ENE::VisualEffect *g_fx_pool_pointer, esat::SpriteHandle *g_fx_sprites_pointer)
 {
-  if (isOnPlatform && player->volando) {
+  if (isOnPlatform && player->volando)
+  {
     float explode_x = player->pos.x + (player->spriteWidth * 0.5f) - 24.0f;
     float explode_y = player->pos.y + player->spriteHeight - 32.0f;
     ENE::ColorType color = (ENE::ColorType)(rand() % 4);
-    
+
     ENE::ExplodeAt(explode_x, explode_y, color, g_fx_pool_pointer, g_fx_sprites_pointer);
   }
 }
@@ -741,7 +774,7 @@ void ColisionPlayerPlatforma(Jugador &player, TPlatform *g_platforms)
   }
 }
 
-void CleanInputsOnDead( bool *ascender, bool *izquierda, bool *derecha)
+void CleanInputsOnDead(bool *ascender, bool *izquierda, bool *derecha)
 {
   *ascender = false;
   *izquierda = false;
@@ -880,24 +913,6 @@ void ResetPlayer_OnDead(Jugador *player, bool *ascender, bool *izquierda, bool *
   return 0;
 }*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ////////////////////////// COLISION ITEMS PLATAFORMA //////////////////////////
 /*
 
@@ -907,7 +922,7 @@ entonces en el merge tenemos que poner gplatforme en la llamada a funcion
 
 void LoopGasofa(Jugador &player, COL::object &gasofa, Nave *nave, TPlatform* g_platforms)
 {
-  
+
   if(nave->direccion == Direction::STATIC){
     bool colisionWithPlatform = false;
     int nPlatform;

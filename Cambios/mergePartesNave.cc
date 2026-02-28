@@ -16,10 +16,10 @@ const int kScreenWidth = 512;
 const int kScreenHeight = 384;
 double delta_time;
 
-#include "nave.cc"
-#include "jugador.cc"
-#include "colisiones.h"
-#include "enemigos.h"
+// #include "nave.cc"
+// #include "jugador.cc"
+// #include "colisiones.h"
+// #include "enemigos.h"
 
 // FPS
 unsigned char fps = 25;
@@ -67,7 +67,7 @@ void InstanciarPartesDeLaNave(ParteNave *parteNave)
     parteNave[1] = cuerpo;
 
     ParteNave cola;
-    //cola.parteNaveConfig.position.x = 325;
+    // cola.parteNaveConfig.position.x = 325;
     cola.parteNaveConfig.position.x = kScreenWidth - 170;
     cola.parteNaveConfig.position.y = (kScreenHeight - 16) - 32;
     cola.parteNaveConfig.height = kScreenHeight;
@@ -101,13 +101,17 @@ void ActualizarColisionParteNave(ParteNave *parteNave)
     }
 }
 
-void MoverParte(ParteNave *parteNave, Nave *nave){
-    for(int i=0; i<2; i++){ 
-        if(parteNave[i].colisionNave){
+void MoverParte(ParteNave *parteNave, Nave *nave)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (parteNave[i].colisionNave)
+        {
             parteNave[i].parteNaveConfig.position.x = nave->pos.x;
             parteNave[i].parteNaveConfig.position.y += 2;
-            if(parteNave[i].parteNaveConfig.position.y >= nave->pos.y + (i*32)){
-                parteNave[i].parteNaveConfig.position.y = nave->pos.y + ((i)*32);
+            if (parteNave[i].parteNaveConfig.position.y >= nave->pos.y + (i * 32))
+            {
+                parteNave[i].parteNaveConfig.position.y = nave->pos.y + ((i) * 32);
                 parteNave[i].colisionNave = false;
             }
         }
@@ -122,13 +126,13 @@ void ColisionColocarPartes(Nave *nave, ParteNave *parte_nave, Jugador *player)
         {
             parteNave[i].colisionNave = true;
             parteNave[i].recogido = false;
-            
-            if(i == 0){
+
+            if (i == 0)
+            {
                 parteNave[0].colocada = true;
             }
         }
     }
-
 }
 
 void ActualizarPosParteNave(ParteNave *parteNave, Jugador *player)
@@ -150,7 +154,7 @@ void ColisionPartesNaveJugador(ParteNave *parteNave, Jugador *player)
     {
         parteNave[1].recogido = true;
         parteNave[1].colocada = true;
-        //printf("Colision objeto 1\n");
+        // printf("Colision objeto 1\n");
     }
     if (parteNave[1].colocada)
     {
@@ -158,7 +162,7 @@ void ColisionPartesNaveJugador(ParteNave *parteNave, Jugador *player)
         {
             parteNave[1].recogido = false;
             parteNave[0].recogido = true;
-            //printf("Colision objeto 0\n");
+            // printf("Colision objeto 0\n");
         }
     }
     ActualizarPosParteNave(parteNave, player);
@@ -275,7 +279,7 @@ void SwitchPlayer(Jugador *player)
 {
     Jugador tmp;
     tmp = *player;
-    //printf("[DEBUG] Switching player to %d\n", player->player_id == 1 ? 2 : 1);
+    // printf("[DEBUG] Switching player to %d\n", player->player_id == 1 ? 2 : 1);
     LoadPlayerDataFromFile(player, player->player_id == 1 ? 2 : 1);
     SavePlayerDataToFile(&tmp, player);
 }
@@ -340,11 +344,10 @@ void Update(Jugador *player, bool ascender, Bala *punteroBalas, bool moverLeft, 
         ActualizarColisionParteNave(parteNave);
 
         ColisionPartesNaveJugador(parteNave, player);
-        //printf("parte nave pos x [%f], pos y[%f]", parteNave->parteNaveConfig.position.x, parteNave->parteNaveConfig.position.y);
+        // printf("parte nave pos x [%f], pos y[%f]", parteNave->parteNaveConfig.position.x, parteNave->parteNaveConfig.position.y);
 
         ColisionColocarPartes(nave, parteNave, player);
-        //printf("parte nave pos x [%f], pos y[%f]", parteNave->parteNaveConfig.position.x, parteNave->parteNaveConfig.position.y);
-
+        // printf("parte nave pos x [%f], pos y[%f]", parteNave->parteNaveConfig.position.x, parteNave->parteNaveConfig.position.y);
     }
 }
 

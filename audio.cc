@@ -7,8 +7,10 @@
 #include <esat_extra/soloud/soloud.h>
 #include <esat_extra/soloud/soloud_wav.h>
 #include <stdio.h>
+#include "audio.h"
 
-enum audio{
+enum audio
+{
   enemyDies,
   fallObject,
   getFuel,
@@ -42,36 +44,60 @@ SoLoud::Wav introSound;
 SoLoud::Wav menuSound;
 SoLoud::Wav launchSound;
 
-void PlayAudio(audio selectAudio) {
-  switch(selectAudio) {
-    case enemyDies:   Soloud.play(enemyDeath);    break;
-    case fallObject:  Soloud.play(fallSound);     break;
-    case getFuel:     Soloud.play(fuelSound);     break;
-    case getItem:     Soloud.play(itemSound);     break;
-    case shoot:       Soloud.play(fireSound);     break;
-    case landing:     Soloud.play(landingSound);  break;
-    case start:       Soloud.play(starSound);     break;
-    case intro:       Soloud.play(introSound);    break;
-    case menu:        Soloud.play(menuSound);     break;
-    case launch:      Soloud.play(launchSound);   break;
+void PlayAudio(audio selectAudio)
+{
+  switch (selectAudio)
+  {
+  case enemyDies:
+    Soloud.play(enemyDeath);
+    break;
+  case fallObject:
+    Soloud.play(fallSound);
+    break;
+  case getFuel:
+    Soloud.play(fuelSound);
+    break;
+  case getItem:
+    Soloud.play(itemSound);
+    break;
+  case shoot:
+    Soloud.play(fireSound);
+    break;
+  case landing:
+    Soloud.play(landingSound);
+    break;
+  case start:
+    Soloud.play(starSound);
+    break;
+  case intro:
+    Soloud.play(introSound);
+    break;
+  case menu:
+    Soloud.play(menuSound);
+    break;
+  case launch:
+    Soloud.play(launchSound);
+    break;
   }
 }
 
-void AudioInit() {
-    Soloud.init();
+void AudioInit()
+{
+  Soloud.init();
 
-    enemyDeath.load("./assets/audio/enemydies.wav");
-    fallSound.load("./assets/audio/fallobject.wav");
-    fuelSound.load("./assets/audio/get_fuel.wav");
-    itemSound.load("./assets/audio/get_item.wav");
-    fireSound.load("./assets/audio/shoot.wav");
-    landingSound.load("./assets/audio/startgameplay.wav");
-    starSound.load("./assets/audio/startgameplay.wav");
-    introSound.load("./assets/audio/intro.wav");
-    menuSound.load("./assets/audio/menu_intro.wav");
-    launchSound.load("./assets/audio/spacedep1.wav");
+  enemyDeath.load("./assets/audio/enemydies.wav");
+  fallSound.load("./assets/audio/fallobject.wav");
+  fuelSound.load("./assets/audio/get_fuel.wav");
+  itemSound.load("./assets/audio/get_item.wav");
+  fireSound.load("./assets/audio/shoot.wav");
+  landingSound.load("./assets/audio/startgameplay.wav");
+  starSound.load("./assets/audio/startgameplay.wav");
+  introSound.load("./assets/audio/intro.wav");
+  menuSound.load("./assets/audio/menu_intro.wav");
+  launchSound.load("./assets/audio/spacedep1.wav");
 }
 
-void FreeAudio(){
+void FreeAudio()
+{
   Soloud.deinit();
 }

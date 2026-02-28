@@ -6,16 +6,16 @@
 #include <esat/time.h>
 
 // Standard libraries
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <math.h>
-#include "colisiones.h"
-#include "interface.cc"
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include <time.h>
+// #include <math.h>
+// #include "colisiones.h"
+// #include "interface.cc"
 
-#include "audio.cc"
-#include <esat_extra/soloud/soloud.h>
+// #include "audio.cc"
+// #include <esat_extra/soloud/soloud.h>
 
 struct Jugador
 {
@@ -137,13 +137,15 @@ void InstanciarPlayer(Jugador *player)
   player->isActive = true;
 }
 
-void LoadPlayerData(Jugador *player, int player_id = 1){
+void LoadPlayerData(Jugador *player, int player_id = 1)
+{
   printf("[DEBUG] Loading player data for player %d\n", player_id);
   LoadPlayerDataFromFile(player, player_id);
   printf("[DEBUG] Player data loaded\n");
 }
 
-void SavePlayerData(Jugador *player){
+void SavePlayerData(Jugador *player)
+{
   printf("[DEBUG] Saving player data\n");
   SavePlayerDataToFile(player);
   printf("[DEBUG] Player data saved\n");
@@ -392,7 +394,8 @@ void DibujarJugador(Sprites *punteroSprites, Jugador jugador, int frame)
 
 void DibujarGasofa(COL::object gasofa, Sprites *punteroSprites, Nave nave)
 {
-  if(nave.direccion == Direction::STATIC){
+  if (nave.direccion == Direction::STATIC)
+  {
     float puntos[8] = {gasofa.position.x, gasofa.position.y, gasofa.position.x + 32, gasofa.position.y, gasofa.position.x + 32, gasofa.position.y + 32, gasofa.position.x, gasofa.position.y + 32};
 
     esat::DrawSetFillColor(255, 0, 255);
@@ -494,7 +497,7 @@ void Ascender_Gravedad(Jugador *jugador, bool ascendiendo)
 
 void SpawnItem(COL::object &item)
 {
-  //!Cambiar por la altura del HUD
+  //! Cambiar por la altura del HUD
   const int hud_height = item.height;
   float x = rand() % (kScreenWidth - item.width);
   item.position.x = x;
@@ -508,7 +511,7 @@ void GravedadItem(COL::object &item)
   item.position.y += speed;
   if (item.position.y + 32 >= kScreenHeight - terrain_height)
   {
-    item.position.y = kScreenHeight - terrain_height - item_height*2;
+    item.position.y = kScreenHeight - terrain_height - item_height * 2;
   }
 }
 
@@ -528,7 +531,8 @@ void UpdateGasofaPosition(Jugador player, COL::object &gasofa)
 
 void LoopGasofa(Jugador &player, COL::object &gasofa, Nave *nave)
 {
-  if(nave->direccion == Direction::STATIC){
+  if (nave->direccion == Direction::STATIC)
+  {
     GravedadItem(gasofa);
     if (COL::CheckColision(player.config_colision.colision, gasofa.colision))
     {
@@ -547,7 +551,7 @@ void LoopGasofa(Jugador &player, COL::object &gasofa, Nave *nave)
   }
 }
 
-//!El player se queda o se va?
+//! El player se queda o se va?
 void ActualizarColisionesItems(Jugador *player, COL::object &gasofa, ItemDrop &item, Nave *nave)
 {
   // player->config_colision.colision = COL::CreateColision(player->config_colision);
@@ -589,7 +593,7 @@ void ColisionJugador(Jugador *player)
   player->config_colision.colision = COL::CreateColision(player->config_colision);
 }
 
-void ColisionPlayerPlatforma(Jugador &player, TPlatform* g_platforms)
+void ColisionPlayerPlatforma(Jugador &player, TPlatform *g_platforms)
 {
   const unsigned char kplatform_numbers = 3;
   for (int i = 0; i < kplatform_numbers; ++i)
@@ -618,7 +622,7 @@ void ColisionPlayerPlatforma(Jugador &player, TPlatform* g_platforms)
         player.pos.x = p->collision_platform.colision.p1.x - player.config_colision.width;
       }
       else if (player.config_colision.colision.p1.x >= p->collision_platform.colision.p1.x &&
-              player.config_colision.colision.p1.x <= p->collision_platform.colision.p2.x)
+               player.config_colision.colision.p1.x <= p->collision_platform.colision.p2.x)
       {
 
         player.pos.x = p->collision_platform.colision.p2.x;
@@ -626,17 +630,18 @@ void ColisionPlayerPlatforma(Jugador &player, TPlatform* g_platforms)
     }
   }
 }
-//if(muerto == true || colisiona == false)
+// if(muerto == true || colisiona == false)
 void ResetPlayer_OnDead(Jugador *player)
 {
   static float timer = 0.0f;
   static float timer_invulnerable = 0.0f;
   // player->muerto = true;
-  
+
   // si esta muerto no dibujar ni detectar inputs
   if (timer <= player->tiempo_aparicion)
   {
-    if(!timer){
+    if (!timer)
+    {
       player->pos.x = kScreenWidth / 2;
       player->pos.y = kScreenHeight - player->spriteHeight - 16;
     }
