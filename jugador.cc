@@ -321,7 +321,7 @@ void EnemiesCollision(ENE::EnemyManager *mgr, Jugador *player, int frame, TGame 
           if (player->vidas <= 0)
           {
             DeletePlayerDataFiles();
-            game->current_screen = TScreen::MAIN_MENU;
+            game->current_screen = TScreen::GAME_OVER;
           }
         }
         e->iscolliding = collision_now;

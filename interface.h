@@ -15,7 +15,8 @@ enum TScreen
 {
     IMAGE,
     MAIN_MENU,
-    GAME_SCREEN
+    GAME_SCREEN,
+    GAME_OVER
 };
 
 // (@jhony) check this
@@ -39,5 +40,6 @@ void ScreenSelector(TGame *game, float *timer, float *menu_blink_timer, bool *me
 void UpdateInterface(int *score, int *lives, int *player_id, TGame *game_data);
 void MainMenu(int selected_player, int selected_control, bool highlight_white, TGame game_data, esat::SpriteHandle sprite_lives);
 void GameScreen(TPlatform *g_platforms, esat::SpriteHandle *platform_sprite, TGame game_data, esat::SpriteHandle sprite_lives, int lives);
+void GameOverScreen(TGame* game_data, double dt);
 
 #endif

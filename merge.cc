@@ -252,6 +252,9 @@ void DrawAll(Sprites *spritesColores, Sprites *spritesPersonaje, Bala *punteroBa
         ENE::DrawEnemies(mgr);
         ENE::DrawActiveVFX(g_fx_pool, g_fx_sprites);
     }
+    if(game.current_screen == TScreen::GAME_OVER){
+      GameOverScreen(&game, delta_time);
+    }
 }
 
 void FinishFrame()
