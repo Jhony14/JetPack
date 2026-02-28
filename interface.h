@@ -15,7 +15,8 @@ enum TScreen
 {
     IMAGE,
     MAIN_MENU,
-    GAME_SCREEN
+    GAME_SCREEN,
+    GAME_OVER
 };
 
 // (@jhony) check this
@@ -23,9 +24,11 @@ struct TGame
 {
     TScreen current_screen;
     unsigned char current_lives;
+    unsigned char current_player_id;
     int hi_socore;
     int score_p1; // actual hi-score for player1
     int score_p2; // actual hi-score for player2
+    float label_timer_blink;
 };
 
 void InitialImage(esat::SpriteHandle *loading_sprite);
@@ -39,5 +42,6 @@ void ScreenSelector(TGame *game, float *timer, float *menu_blink_timer, bool *me
 void UpdateInterface(int *score, int *lives, int *player_id, TGame *game_data);
 void MainMenu(int selected_player, int selected_control, bool highlight_white, TGame game_data, esat::SpriteHandle sprite_lives);
 void GameScreen(TPlatform *g_platforms, esat::SpriteHandle *platform_sprite, TGame game_data, esat::SpriteHandle sprite_lives, int lives);
+void GameOverScreen(TGame* game_data, double dt);
 
 #endif

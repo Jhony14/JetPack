@@ -311,17 +311,19 @@ void EnemiesCollision(ENE::EnemyManager *mgr, Jugador *player, int frame, TGame 
         bool collision_now = COL::CheckColision(e->col, player->config_colision.colision);
         if (collision_now && !e->iscolliding)
         {
-          // player->vidas--;
+          player->vidas--;
           ENE::ExplodeAt(e->position.x, e->position.y, e->Color, g_fx_pool_pointer, g_fx_sprites_pointer);
           ENE::ExplodeAt(player->pos.x, player->pos.y, static_cast<ENE::ColorType>(frame), g_fx_pool_pointer, g_fx_sprites_pointer);
           player->muerto = true;
           player->colisiona = false;
 
           SwitchPlayer(player);
+          game->current_player_id = player->player_id;
+          game->label_timer_blink = 3.0f;
           if (player->vidas <= 0)
           {
             DeletePlayerDataFiles();
-            game->current_screen = TScreen::MAIN_MENU;
+            game->current_screen = TScreen::GAME_OVER;
           }
         }
         e->iscolliding = collision_now;
