@@ -14,6 +14,11 @@
 #include <time.h>
 #include <math.h>
 
+// FPS
+const int kScreenWidth = 512;
+const int kScreenHeight = 384;
+double delta_time;
+
 // #include "colisiones.h"
 // #include "nave.cc"
 // #include "enemigos.h"
@@ -25,10 +30,6 @@
 #include "jugador.h"
 #include "audio.h"
 #include "data.h"
-// FPS
-const int kScreenWidth = 512;
-const int kScreenHeight = 384;
-double delta_time;
 
 void InitiateFrame();
 

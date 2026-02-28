@@ -1,7 +1,7 @@
 // Save player data
 // Save game data
 #include "jugador.h"
-void SavePlayerDataToFile(Jugador *player1, Jugador *player2 = nullptr)
+void SavePlayerDataToFile(Jugador *player1, Jugador *player2)
 {
   FILE *fichero;
   fichero = fopen("save.dat", "wb");
@@ -14,7 +14,7 @@ void SavePlayerDataToFile(Jugador *player1, Jugador *player2 = nullptr)
   }
 }
 
-void LoadPlayerDataFromFile(Jugador *player, int player_id = 1)
+void LoadPlayerDataFromFile(Jugador *player, int player_id)
 {
   FILE *fichero;
   Jugador tmp;
