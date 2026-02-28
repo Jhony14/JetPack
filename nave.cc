@@ -8,42 +8,14 @@ double delta_time;
 unsigned char fps = 25;
 double current_time;
 double last_time;*/
+#include "merge.h"
 #include "nave.h"
 #include "jugador.h"
-enum Direction
-{
-    UP,
-    DOWN,
-    STATIC,
-};
-
-struct Nave
-{
-    float vel;
-    esat::Vec2 pos;
-    Direction direccion;
-    int height = 32, fuelAmount;
-    COL::object nave_config;
-};
-
-struct Sprites
-{
-    esat::SpriteHandle sprite;
-};
 
 Sprites *InstanciarSpritesNave(int numSprite)
 {
     return (Sprites *)malloc(sizeof(Sprites) * numSprite);
 }
-
-struct ParteNave
-{
-    esat::Vec2 pos;
-    COL::object parteNaveConfig;
-    bool colocada = false;
-    bool recogido = false;
-    bool colisionNave = false;
-};
 
 void InitSpriteNave(Sprites *punteroSprites)
 {

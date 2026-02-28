@@ -6,6 +6,7 @@
 #include <esat/time.h>
 
 // Standard libraries
+#include "merge.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,30 +19,6 @@
 // TODO(@jhony): Optimize this scripts
 extern const int kScreenWidth;
 extern const int kScreenHeight;
-
-enum TScreen
-{
-  IMAGE,
-  MAIN_MENU,
-  GAME_SCREEN
-};
-
-struct TPlatform
-{
-  // esat::Vec2 pos;
-  COL::object collision_platform;
-  int size;
-};
-
-// (@jhony) check this
-struct TGame
-{
-  TScreen current_screen;
-  unsigned char current_lives;
-  int hi_socore;
-  int score_p1; // actual hi-score for player1
-  int score_p2; // actual hi-score for player2
-};
 
 // (@jhony) check this
 struct TPlayerGame

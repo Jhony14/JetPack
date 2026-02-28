@@ -1,3 +1,4 @@
+#include "merge.h"
 #include "jugador.h"
 #include "nave.h"
 #include "interface.h"
@@ -8,57 +9,51 @@
 {
   esat::SpriteHandle sprite;
   }*/
-enum Direction
-{
-  UP,
-  DOWN,
-  STATIC,
-};
 
-struct Jugador
-{
-  esat::Vec2 pos;
-  esat::Vec2 dir;
-  float speed;
-  bool isMoving;
-  bool isShooting;
-  bool mirandoDerecha;
-  bool volando;
-  bool tiene_gasofa;
-  COL::object config_colision;
-  int vidas;
-  int puntos;
-  int player_id;
-  bool isActive;
-  bool muerto;
-  float tiempo_aparicion;
-  float tiempo_invulnerable;
-  int spriteWidth;
-  int spriteHeight;
-  bool colisiona;
-};
-struct Bala
-{
-  esat::Vec2 pos;
-  esat::Vec2 dir;
-  float speed;
-  bool activa;
-  float tiempo_vida;
-  COL::object config_bala;
-  // animacion bala
-  float longitud_actual;
-  float longitud_maxima;
-  float velocidad_crecimiento;
-  unsigned char r, g, b;
-};
+// struct Jugador
+// {
+//   esat::Vec2 pos;
+//   esat::Vec2 dir;
+//   float speed;
+//   bool isMoving;
+//   bool isShooting;
+//   bool mirandoDerecha;
+//   bool volando;
+//   bool tiene_gasofa;
+//   COL::object config_colision;
+//   int vidas;
+//   int puntos;
+//   int player_id;
+//   bool isActive;
+//   bool muerto;
+//   float tiempo_aparicion;
+//   float tiempo_invulnerable;
+//   int spriteWidth;
+//   int spriteHeight;
+//   bool colisiona;
+// };
+// struct Bala
+// {
+//   esat::Vec2 pos;
+//   esat::Vec2 dir;
+//   float speed;
+//   bool activa;
+//   float tiempo_vida;
+//   COL::object config_bala;
+//   // animacion bala
+//   float longitud_actual;
+//   float longitud_maxima;
+//   float velocidad_crecimiento;
+//   unsigned char r, g, b;
+// };
 
-struct ItemDrop
-{
-  COL::object item_config;
-  int tipo;
-  float cooldown;
-  bool recogido;
-};
+// struct ItemDrop
+// {
+//   COL::object item_config;
+//   int tipo;
+//   float cooldown;
+//   bool recogido;
+// };
 
 #include "data.h"
 

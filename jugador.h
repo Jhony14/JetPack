@@ -5,6 +5,8 @@
 #include <esat/draw.h>
 #include "colisiones.h"
 #include "nave.h"
+#include "enemigos.h"
+#include "interface.h"
 
 struct Bala;
 struct ItemDrop;

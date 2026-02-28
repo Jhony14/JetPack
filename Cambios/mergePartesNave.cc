@@ -12,9 +12,9 @@
 #include <time.h>
 #include <math.h>
 
-const int kScreenWidth = 512;
-const int kScreenHeight = 384;
-double delta_time;
+// const int kScreenWidth = 512;
+// const int kScreenHeight = 384;
+// double delta_time;
 
 // #include "nave.cc"
 // #include "jugador.cc"

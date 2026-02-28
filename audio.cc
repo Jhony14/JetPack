@@ -9,20 +9,6 @@
 #include <stdio.h>
 #include "audio.h"
 
-enum audio
-{
-  enemyDies,
-  fallObject,
-  getFuel,
-  getItem,
-  shoot,
-  landing,
-  start,
-  intro,
-  menu,
-  launch
-};
-
 /*
 escribir extern SoLoud::Soloud Soloud;
 para llamar al reproductor de audio

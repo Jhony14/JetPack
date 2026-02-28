@@ -12,15 +12,12 @@
 #include <time.h>
 #include <math.h>
 
-const int kScreenWidth = 512;
-const int kScreenHeight = 384;
-double delta_time;
-
 // #include "colisiones.h"
 // #include "nave.cc"
 // #include "enemigos.h"
 // #include "jugador.cc"
 
+#include "merge.h"
 #include "interface.h"
 #include "colisiones.h"
 #include "nave.h"
