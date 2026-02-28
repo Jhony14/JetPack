@@ -177,7 +177,6 @@ void Update(Jugador *player, bool *ascender, Bala *punteroBalas, bool *moverLeft
         if (player->muerto || !player->colisiona)
             ResetPlayer_OnDead(player, ascender, moverLeft, moverRight);
 
-        // ActualizarColisionParteNave(*punteroNave);
         ActualizarColisionesItems(gasofa, *itemdrop, nave);
         LoopGasofa(*player, gasofa, nave, g_platforms);
         LoopPickItems(*player, itemdrop, spritesItems, *nave, g_platforms);
@@ -187,14 +186,18 @@ void Update(Jugador *player, bool *ascender, Bala *punteroBalas, bool *moverLeft
         Ascender_Gravedad(player, *ascender);
         ColisionJugador(player); // Actualizar colider a player
         ActualizarColisionParteNave(punteroParteNave);
+
         ColisionPlayerPlatforma(*player, g_platforms); // No subir porque da error
         AnimationDust(player, isOnPlatform, g_fx_pool, g_fx_sprites);
         ColisionDisparos(punteroBalas, mgr, g_fx_pool, g_fx_sprites);
 
         MoverParte(punteroParteNave, nave);
+
         MoverNave(nave, player->config_colision, &player->muerto);
         ColisionPartesNaveJugador(punteroParteNave, player);   // detecta colision entre parte y jugador
+
         ColisionColocarPartes(nave, punteroParteNave, player); // esto apila las partes
+        
         if (level == 1)
         {
             for (int i = 0; i < 3; i++)
@@ -224,7 +227,7 @@ void Update(Jugador *player, bool *ascender, Bala *punteroBalas, bool *moverLeft
 void DrawAll(Sprites *spritesColores, Sprites *spritesPersonaje, Bala *punteroBalas, Jugador player, int frame,
              ItemDrop gasofa, Sprites *spritesItems, ItemDrop itemdrop, TPlatform *g_platforms, esat::SpriteHandle *platform_sprite,
              TGame game, esat::SpriteHandle *loading_sprite, int menu_selection_player, int menu_selection_control, int menu_highlight_white, esat::SpriteHandle sprite_vidas,
-             Nave *nave, Sprites *spritesNave, ENE::EnemyManager mgr, ENE::VisualEffect *g_fx_pool, esat::SpriteHandle *g_fx_sprites, ParteNave *punteroNave)
+             Nave *nave, Sprites *spritesNave, ENE::EnemyManager mgr, ENE::VisualEffect *g_fx_pool, esat::SpriteHandle *g_fx_sprites, ParteNave *punteroParteNave)
 {
     if (game.current_screen == TScreen::IMAGE)
         InitialImage(loading_sprite);
@@ -245,8 +248,8 @@ void DrawAll(Sprites *spritesColores, Sprites *spritesPersonaje, Bala *punteroBa
             DibujarJugador(spritesPersonaje, player, frame);
         }
         DibujarItems(itemdrop, spritesItems);
-        DibujarPartesNave(punteroNave, spritesNave);
-        DibujarNave(nave, spritesNave);
+        DibujarPartesNave(punteroParteNave, spritesNave);
+        DibujarNave(nave, spritesNave, punteroParteNave);
         DibujarGasofa(gasofa, spritesItems, *nave);
         COL::ShowColision(player.config_colision.colision);
         ENE::DrawEnemies(mgr);

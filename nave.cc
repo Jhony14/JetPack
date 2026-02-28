@@ -50,6 +50,8 @@ void InstanciarPartesDeLaNave(ParteNave *parteNave)
     cabeza.parteNaveConfig.width = measure;
     cabeza.parteNaveConfig.colision = COL::CreateColision(cabeza.parteNaveConfig);
     cabeza.recogido = false;
+    cabeza.colocada = false;
+    cabeza.colisionNave = false;
     parteNave[0] = cabeza;
 
     ParteNave cuerpo;
@@ -59,15 +61,18 @@ void InstanciarPartesDeLaNave(ParteNave *parteNave)
     cuerpo.parteNaveConfig.width = measure;
     cuerpo.parteNaveConfig.colision = COL::CreateColision(cuerpo.parteNaveConfig);
     cuerpo.recogido = false;
+    cuerpo.colocada = false;
+    cuerpo.colisionNave = false;
     parteNave[1] = cuerpo;
 
     ParteNave cola;
     // cola.parteNaveConfig.position.x = 325;
-    cola.parteNaveConfig.position.x = kScreenWidth - 170;
+    cola.parteNaveConfig.position.x = kScreenWidth - 180;
     cola.parteNaveConfig.position.y = (kScreenHeight - 16) - 32;
     cola.parteNaveConfig.height = kScreenHeight;
     cola.parteNaveConfig.width = measure;
     cola.recogido = true;
+    cola.colocada = true;
     parteNave[2] = cola;
 }
 
@@ -83,14 +88,20 @@ void MoverParte(ParteNave *parteNave, Nave *nave)
 {
     for (int i = 0; i < 2; i++)
     {
-        if (parteNave[i].colisionNave)
+        
+        if (parteNave[i].colisionNave && !parteNave[i].colocada)
         {
+            parteNave[i].recogido = false;
             parteNave[i].parteNaveConfig.position.x = nave->pos.x;
             parteNave[i].parteNaveConfig.position.y += 2;
-            if (parteNave[i].parteNaveConfig.position.y >= nave->pos.y + (i * 32))
+            
+        
+            if (parteNave[i].parteNaveConfig.position.y >= nave->pos.y)
             {
-                parteNave[i].parteNaveConfig.position.y = nave->pos.y + ((i) * 32);
-                parteNave[i].colisionNave = false;
+                // dato curioso el indice està al reves entonces el de arriba es 0 y el de abajo es 1
+                // pero no importa porque despues se muestra la nave de todos modos
+                parteNave[i].parteNaveConfig.position.y = nave->nave_config.height - (i*32) - 32; 
+                parteNave[i].colocada = true;
             }
         }
     }
@@ -104,118 +115,66 @@ void ColisionColocarPartes(Nave *nave, ParteNave *parte_nave, Jugador *player)
         {
             parte_nave[i].colisionNave = true;
             parte_nave[i].recogido = false;
-
-            if (i == 0)
-            {
-                parte_nave[0].colocada = true;
-            }
         }
     }
 }
 
 void ActualizarPosParteNave(ParteNave *parteNave, Jugador *player)
 {
-
     for (int i = 0; i < 2; i++)
     {
-        if (parteNave[i].recogido && !parteNave[i].colisionNave)
+        // si el jugador lo tiene y no esta colocado entonces posicion parte es posicion jugador
+        if (parteNave[i].recogido && !parteNave[i].colocada)
         {
-            parteNave[i].parteNaveConfig.position.x = player->pos.x + 32;
-            parteNave[i].parteNaveConfig.position.y = player->pos.y;
+            parteNave[i].parteNaveConfig.position.x = player->pos.x + 16;
+            parteNave[i].parteNaveConfig.position.y = player->pos.y + 24;
         }
     }
 }
 
 void ColisionPartesNaveJugador(ParteNave *parteNave, Jugador *player)
 {
-    if (COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision) && !parteNave[1].colocada)
+    // para no agarrar la punta antes se verifica solo con la parte del centro
+    if (COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision) && !parteNave[1].recogido)
     {
+        // si detecta colision y no fue puesto en la nave
         parteNave[1].recogido = true;
-        parteNave[1].colocada = true;
         // printf("Colision objeto 1\n");
     }
-    if (parteNave[1].colocada)
+    else if (parteNave[1].colocada)
     {
-        if (COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision) && !parteNave[0].colocada)
+        if (COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision) && !parteNave[0].recogido)
         {
-            parteNave[1].recogido = false;
             parteNave[0].recogido = true;
             // printf("Colision objeto 0\n");
         }
     }
     ActualizarPosParteNave(parteNave, player);
-
-    COL::ShowColision(parteNave[0].parteNaveConfig.colision);
-    COL::ShowColision(parteNave[1].parteNaveConfig.colision);
 }
 
-// TO-DO mati
-/*
-void ColisionColocarPartes(Nave *nave, ParteNave &parte_nave, Jugador *player)
+// esto es colision parte colision nave
+void ColisionColocarPartes(Nave *nave, ParteNave **parte_nave, Jugador *player)
 {
     for (int i = 0; i < 2; i++)
     {
-        if ((COL::CheckColision(nave->nave_config.colision, parte_nave[i].parteNaveConfig.colision)))
+        if ((COL::CheckColision(nave->nave_config.colision, parte_nave[i]->parteNaveConfig.colision)))
         {
-            parteNave[i].colisionNave = true;
-            parteNave[i].recogido = false;
-
-            if(i == 0){
-                parteNave[0].colocada = true;
-            }
+            parte_nave[i]->colisionNave = true;
+            parte_nave[i]->recogido = false;
         }
     }
 }
-
-void ActualizarPosParteNave(ParteNave &parteNave, Jugador *player)
-{
-
-    for (int i = 0; i < 2; i++)
-    {
-        if (parteNave[i].recogido && !parteNave[i].colisionNave)
-        {
-            parteNave[i].parteNaveConfig.position.x = player->pos.x + 32;
-            parteNave[i].parteNaveConfig.position.y = player->pos.y;
-        }
-    }
-}
-
-void ColisionPartesNaveJugador(ParteNave &parteNave, Jugador *player)
-{
-    if (COL::CheckColision(player->config_colision.colision, parteNave[1].parteNaveConfig.colision) && !parteNave[1].colocada)
-    {
-        parteNave[1].recogido = true;
-        parteNave[1].colocada = true;
-        //printf("Colision objeto 1\n");
-    }
-    if (parteNave[1].colocada)
-    {
-        if (COL::CheckColision(player->config_colision.colision, parteNave[0].parteNaveConfig.colision) && !parteNave[0].colocada)
-        {
-            parteNave[1].recogido = false;
-            parteNave[0].recogido = true;
-            //printf("Colision objeto 0\n");
-        }
-    }
-    ActualizarPosParteNave(parteNave, player);
-
-    COL::ShowColision(parteNave[0].parteNaveConfig.colision);
-    COL::ShowColision(parteNave[1].parteNaveConfig.colision);
-}
-*/
 
 void DibujarPartesNave(ParteNave *parteNave, Sprites *punteroSprites)
 {
-    int height = 32;
-
-    for (int i = 0; i < 3; i++)
-    {
-        esat::DrawSprite(punteroSprites[12].sprite, parteNave[i].parteNaveConfig.position.x, parteNave[i].parteNaveConfig.position.y);
-    }
-
-    for (int i = 0; i < 3; i++)
-    {
-        esat::DrawSprite(punteroSprites[i].sprite, parteNave[i].parteNaveConfig.position.x, parteNave[i].parteNaveConfig.position.y);
+    // si no todas las partes fueron colocadas entonces dibuja
+    if(!parteNave[0].colocada || !parteNave[1].colocada){
+        int height = 32;
+        for (int i = 0; i < 3; i++)
+        {
+            esat::DrawSprite(punteroSprites[12].sprite, parteNave[i].parteNaveConfig.position.x, parteNave[i].parteNaveConfig.position.y);
+            esat::DrawSprite(punteroSprites[i].sprite, parteNave[i].parteNaveConfig.position.x, parteNave[i].parteNaveConfig.position.y);
+        }
     }
 }
 
@@ -226,13 +185,14 @@ void InstanciarNave(Nave *nave)
     const int terrain_height = 16;
     nave->vel = 100;
     nave->pos.x = kScreenWidth - 180;
-    nave->pos.y = kScreenHeight - (nave->height * 3) - terrain_height;
+    nave->height = terrain_height * 2;
+    nave->nave_config.height = kScreenHeight - terrain_height;      // al parecer esto ahora es donde toca el piso
+    nave->pos.y = nave->nave_config.height - (nave->height * 3);
     nave->fuelAmount = 0;
     nave->direccion = Direction::STATIC;
     nave->nave_config.position.x = nave->pos.x;
     nave->nave_config.position.y = 0;
     nave->nave_config.width = 32;
-    nave->nave_config.height = kScreenHeight - terrain_height;
 }
 
 void MoverNave(Nave *nave, COL::object P, bool *visible)
@@ -346,69 +306,22 @@ void SetRocketExplosion(Nave nave, int explosion_size, const Sprites *punteroSpr
     DrawRocketExplosion(explosion_path, punteroSprites);
 }
 
-void DibujarNave(Nave *nave, Sprites *punteroSprites)
+void DibujarNave(Nave *nave, Sprites *punteroSprites, ParteNave *punteroParteNave)
 {
-    const int terrain_height = 16, pink_sprite_height = 16, max_sprites = 6, explosion_size = 32, rocket_total_height = nave->height * 3,
-              initFuelY = nave->pos.y + rocket_total_height - pink_sprite_height;
-
-    // Blanco
-    DrawRocketLayer(3, punteroSprites, 12, nave->pos.x, nave->pos.y, nave->height);
-    // Rosa
-    DrawRocketLayer(nave->fuelAmount, punteroSprites, 13, nave->pos.x, initFuelY, -pink_sprite_height);
-    // Nave
-    DrawRocketLayer(3, punteroSprites, -1, nave->pos.x, nave->pos.y, nave->height);
-
-    // Calcula si el espacio entre el suelo y la base del cohete es como mínimo igual a explosion_size
-    if (kScreenHeight - terrain_height - (nave->pos.y + rocket_total_height) >= explosion_size)
-        SetRocketExplosion(*nave, explosion_size, punteroSprites);
+    // dibuja la nave solo 
+    if(punteroParteNave[0].colocada && punteroParteNave[1].colocada){
+        const int terrain_height = 16, pink_sprite_height = 16, max_sprites = 6, explosion_size = 32, rocket_total_height = nave->height * 3,
+                  initFuelY = nave->pos.y + rocket_total_height - pink_sprite_height;
+    
+        // Blanco
+        DrawRocketLayer(3, punteroSprites, 12, nave->pos.x, nave->pos.y, nave->height);
+        // Rosa
+        DrawRocketLayer(nave->fuelAmount, punteroSprites, 13, nave->pos.x, initFuelY, -pink_sprite_height);
+        // Nave
+        DrawRocketLayer(3, punteroSprites, -1, nave->pos.x, nave->pos.y, nave->height);
+    
+        // Calcula si el espacio entre el suelo y la base del cohete es como mínimo igual a explosion_size
+        if (kScreenHeight - terrain_height - (nave->pos.y + rocket_total_height) >= explosion_size)
+            SetRocketExplosion(*nave, explosion_size, punteroSprites);
+    }
 }
-
-/*int esat::main(int argc, char **argv){
-
-  esat::WindowInit(KWindow_Width, KWindow_Height);
-  esat::WindowSetMouseVisibility(true);
-
-  srand((unsigned)time(nullptr));
-  last_time = esat::Time();
-
-  Sprites *punteroSprites = InstanciarSpritesNave(16);
-  InitSpriteNave(punteroSprites);
-
-  Nave nave;
-  InstanciarNave(&nave);
-
-  // Main game loop
-  while (esat::WindowIsOpened() && !esat::IsSpecialKeyDown(esat::kSpecialKey_Escape))
-  {
-
-    // Calculate time elapsed since the last frame
-    current_time = esat::Time();
-    delta_time = (current_time - last_time) / 1000.0;
-    // Limit delta_time to avoid large jumps
-    if (delta_time > 0.1)
-      delta_time = 0.1;
-
-    last_time = current_time;
-
-    esat::DrawBegin();
-    esat::DrawClear(0, 0, 0);
-
-    // InitFuel(&nave, punteroSprites);
-    RellenarFuelNave(&nave);
-    MoverNave(&nave);
-    DibujarNave(&nave, punteroSprites);
-
-    // Finish drawing
-    esat::DrawEnd();
-    // Control frame speed (fps)
-    do
-    {
-      current_time = esat::Time();
-    } while ((current_time - last_time) <= 1000.0 / fps);
-    esat::WindowFrame();
-  }
-
-  // Destroy window
-  esat::WindowDestroy();
-  return 0;
-}*/

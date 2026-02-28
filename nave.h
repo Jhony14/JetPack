@@ -45,7 +45,7 @@ void InstanciarNave(Nave *nave);
 void MoverNave(Nave *nave, COL::object P, bool *visible);
 bool NaveEstaArriba(Nave *nave);
 void RellenarFuelNave(Nave *nave);
-void DibujarNave(Nave *nave, Sprites *punteroSprites);
+void DibujarNave(Nave *nave, Sprites *punteroSprites, ParteNave *punteroParteNave);
 
 // --- Partes nave ---
 void InstanciarPartesDeLaNave(ParteNave *parteNave);
