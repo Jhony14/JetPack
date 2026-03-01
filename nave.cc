@@ -198,13 +198,14 @@ void InstanciarNave(Nave *nave)
     nave->nave_config.width = 32;
 }
 
-void MoverNave(Nave *nave, COL::object P, bool *visible)
+void MoverNave(Nave *nave, COL::object P, bool *visible, int* vidas)
 {
     const int terrain_height = 16;
     if (nave->fuelAmount == 6 && COL::CheckColision(P.colision, nave->nave_config.colision) && P.colision.p1.y > (kScreenHeight - (32 * 4)))
     {
         nave->direccion = Direction::UP;
         *visible = true;
+        (*vidas)++;
     }
     switch (nave->direccion)
     {

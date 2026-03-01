@@ -42,7 +42,7 @@ struct ParteNave
 // Sprites *InstanciarSpritesNave(int numSprite);
 void InitSpriteNave(Sprites *punteroSprites);
 void InstanciarNave(Nave *nave);
-void MoverNave(Nave *nave, COL::object P, bool *visible);
+void MoverNave(Nave *nave, COL::object P, bool *visible, int* vidas);
 bool NaveEstaArriba(Nave *nave);
 void RellenarFuelNave(Nave *nave);
 void DibujarNave(Nave *nave, Sprites *punteroSprites, ParteNave *punteroParteNave);

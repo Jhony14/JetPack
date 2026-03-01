@@ -213,7 +213,7 @@ void Update(Jugador *player, bool *ascender, Bala *punteroBalas, bool *moverLeft
 
         MoverParte(punteroParteNave, nave);
 
-        MoverNave(nave, player->config_colision, &player->muerto);
+        MoverNave(nave, player->config_colision, &player->muerto, &player->vidas);
         ColisionPartesNaveJugador(punteroParteNave, player);   // detecta colision entre parte y jugador
 
         ColisionColocarPartes(nave, punteroParteNave, player); // esto apila las partes
